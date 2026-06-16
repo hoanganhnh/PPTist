@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import type { IndexableTypeArray } from 'dexie'
 import { db, type Snapshot } from '@/utils/database'
-import { isFsdsMode } from '@/integrations/fsds/parent-bridge'
 
 import { useSlidesStore } from './slides'
 import { useMainStore } from './main'
@@ -35,9 +34,6 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
 
     async initSnapshotDatabase() {
-      // Snapshot DB disabled in FSDS mode — rely on manual save
-      if (isFsdsMode()) return
-
       const slidesStore = useSlidesStore()
   
       const newFirstSnapshot = {
@@ -50,8 +46,6 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
   
     async addSnapshot() {
-      if (isFsdsMode()) return
-
       const slidesStore = useSlidesStore()
 
       // Get the ID of all snapshots in indexeddb
@@ -96,7 +90,6 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
   
     async unDo() {
-      if (isFsdsMode()) return
       if (this.snapshotCursor <= 0) return
 
       const slidesStore = useSlidesStore()
@@ -116,7 +109,6 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
   
     async reDo() {
-      if (isFsdsMode()) return
       if (this.snapshotCursor >= this.snapshotLength - 1) return
 
       const slidesStore = useSlidesStore()

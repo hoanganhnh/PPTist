@@ -122,9 +122,14 @@ function handleParentMessage(event: MessageEvent): void {
       if (!saveHandler || isSaving) break
       isSaving = true
       saveHandler()
-        .finally(() => { isSaving = false })
+        .finally(() => {
+          isSaving = false
+        })
       break
     }
+
+    default:
+      break
   }
 }
 
@@ -151,7 +156,9 @@ export function destroyBridge(): void {
  */
 export function registerSaveHandler(handler: () => Promise<void>): () => void {
   saveHandler = handler
-  return () => { saveHandler = null }
+  return () => {
+    saveHandler = null
+  }
 }
 
 /**

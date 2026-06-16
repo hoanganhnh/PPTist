@@ -127,11 +127,12 @@ async function bootFsds(): Promise<void> {
       updateDeckVersion(result.version)
     }
 
+    await deleteDiscardedDB()
+    await snapshotStore.initSnapshotDatabase()
+
     // Set dirty baseline (current state = clean)
     setBaseline()
     startDirtyTracking()
-
-    // Snapshot DB is disabled in FSDS mode — rely on manual save
   }
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)

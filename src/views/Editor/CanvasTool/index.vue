@@ -1,10 +1,10 @@
 <template>
   <div class="canvas-tool">
     <div class="left-handler">
-      <span class="handler-item" :class="{ 'disable': !canUndo }" v-tooltip="'Undo（Ctrl + Z）'" @click="undo()">
+      <span class="handler-item" :class="{ 'disable': !canUndo }" v-tooltip="'Undo（Ctrl + Z）'" @click="canUndo && undo()">
         <i-icon-park-outline:back />
       </span>
-      <span class="handler-item" :class="{ 'disable': !canRedo }" v-tooltip="'Redo（Ctrl + Y）'" @click="redo()">
+      <span class="handler-item" :class="{ 'disable': !canRedo }" v-tooltip="'Redo（Ctrl + Y）'" @click="canRedo && redo()">
         <i-icon-park-outline:next />
       </span>
       <div class="more">

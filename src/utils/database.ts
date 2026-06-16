@@ -2,7 +2,6 @@ import Dexie, { type EntityTable } from 'dexie'
 import { databaseId } from '@/store/main'
 import type { Slide } from '@/types/slides'
 import { LOCALSTORAGE_KEY_DISCARDED_DB } from '@/configs/storage'
-import { isFsdsMode } from '@/integrations/fsds/parent-bridge'
 
 export interface writingBoardImg {
   id: string
@@ -22,9 +21,6 @@ const databaseNamePrefix = 'PPTist'
 // App initialization: check all databases and delete flagged/invalid ones
 // Databases older than 12 hours will also be deleted to prevent leaks from crashes
 export const deleteDiscardedDB = async () => {
-  // Skip IndexedDB cleanup in FSDS mode — snapshot DB is disabled
-  if (isFsdsMode()) return
-
   const now = new Date().getTime()
 
   const localStorageDiscardedDB = localStorage.getItem(LOCALSTORAGE_KEY_DISCARDED_DB)
@@ -46,30 +42,14 @@ export const deleteDiscardedDB = async () => {
   localStorage.removeItem(LOCALSTORAGE_KEY_DISCARDED_DB)
 }
 
-/**
- * In FSDS mode, skip Dexie DB creation entirely — rely on manual save.
- * In standalone mode, create the snapshot DB as before.
- */
-let db: (Dexie & {
+const db = new Dexie(`${databaseNamePrefix}_${databaseId}_${new Date().getTime()}`) as Dexie & {
   snapshots: EntityTable<Snapshot, 'id'>,
   writingBoardImgs: EntityTable<writingBoardImg, 'id'>,
+}
+
+db.version(1).stores({
+  snapshots: '++id',
+  writingBoardImgs: 'id',
 })
-
-if (!isFsdsMode()) {
-  db = new Dexie(`${databaseNamePrefix}_${databaseId}_${new Date().getTime()}`) as Dexie & {
-    snapshots: EntityTable<Snapshot, 'id'>,
-    writingBoardImgs: EntityTable<writingBoardImg, 'id'>,
-  }
-
-  db.version(1).stores({
-    snapshots: '++id',
-    writingBoardImgs: 'id',
-  })
-}
-else {
-  // Provide a no-op stub so imports don't crash in FSDS mode.
-  // Snapshot operations should be guarded by isFsdsMode() checks.
-  db = null as unknown as typeof db
-}
 
 export { db }
