@@ -5,7 +5,7 @@
     v-click-outside="() => setThumbnailsFocus(false)"
   >
     <div class="add-slide">
-      <div class="btn" @click="createSlide()"><i-icon-park-outline:plus class="icon" />添加幻灯片</div>
+      <div class="btn" @click="createSlide()"><i-icon-park-outline:plus class="icon" />AddSlide</div>
       <Popover trigger="click" placement="bottom-start" v-model:value="presetLayoutPopoverVisible" center>
         <template #content>
           <Templates 
@@ -41,13 +41,13 @@
               :id="`section-title-input-${element?.sectionTag?.id || 'default'}`" 
               type="text"
               :value="element?.sectionTag?.title || ''"
-              placeholder="输入节名称"
+              placeholder="Enter section name"
               @blur="$event => saveSection($event)"
               @keydown.enter.stop="$event => saveSection($event)"
               v-if="editingSectionId === element?.sectionTag?.id || (index === 0 && editingSectionId === 'default')"
             >
             <span class="text" v-else>
-              <div class="text-content">{{ element?.sectionTag ? (element?.sectionTag?.title || '无标题节') : '默认节' }}</div>
+              <div class="text-content">{{ element?.sectionTag ? (element?.sectionTag?.title || 'Untitled Section') : 'Default Section' }}</div>
             </span>
           </div>
           <div
@@ -69,7 +69,7 @@
       </template>
     </Draggable>
 
-    <div class="page-number">幻灯片 {{slideIndex + 1}} / {{slides.length}}</div>
+    <div class="page-number">Slide {{slideIndex + 1}} / {{slides.length}}</div>
   </div>
 </template>
 
@@ -132,16 +132,16 @@ const {
   updateSectionTitle,
 } = useSectionHandler()
 
-// 页面被切换时
+// When slide is switched
 const thumbnailsRef = useTemplateRef<InstanceType<typeof Draggable>>('thumbnailsRef')
 watch(() => slideIndex.value, () => {
 
-  // 清除多选状态的幻灯片
+  // Clear slide selection
   if (selectedSlidesIndex.value.length) {
     mainStore.updateSelectedSlidesIndex([])
   }
 
-  // 检查当前页缩略图是否在可视范围，不在的话需要滚动到对应的位置
+  // Check if the current slide thumbnail is in the visible viewport, if not, scroll to its position
   nextTick(() => {
     const activeThumbnailRef: HTMLElement = thumbnailsRef.value?.$el?.querySelector('.thumbnail-item.active')
     if (thumbnailsRef.value && activeThumbnailRef && !isElementInViewport(activeThumbnailRef, thumbnailsRef.value.$el)) {
@@ -152,7 +152,7 @@ watch(() => slideIndex.value, () => {
   })
 }, { immediate: true })
 
-// 切换页面
+// Switch slide
 const changeSlideIndex = (index: number) => {
   mainStore.setActiveElementIdList([])
 
@@ -160,7 +160,7 @@ const changeSlideIndex = (index: number) => {
   slidesStore.updateSlideIndex(index)
 }
 
-// 点击缩略图
+// Click thumbnail
 const handleClickSlideThumbnail = (e: MouseEvent, index: number) => {
   if (editingSectionId.value) return
 
@@ -168,8 +168,8 @@ const handleClickSlideThumbnail = (e: MouseEvent, index: number) => {
 
   if (isMultiSelected && selectedSlidesIndex.value.includes(index) && e.button !== 0) return
 
-  // 按住Ctrl键，点选幻灯片，再次点击已选中的页面则取消选中
-  // 如果被取消选中的页面刚好是当前激活页面，则需要从其他被选中的页面中选择第一个作为当前激活页面
+  // Hold Ctrl key to select slides. Click a selected slide again to deselect it
+  // If the deselected slide is the current active slide, select another selected slide as the active one
   if (ctrlKeyState.value) {
     if (slideIndex.value === index) {
       if (!isMultiSelected) return
@@ -189,7 +189,7 @@ const handleClickSlideThumbnail = (e: MouseEvent, index: number) => {
       }
     }
   }
-  // 按住Shift键，选择范围内的全部幻灯片
+  // Hold Shift key to select all slides in the range
   else if (shiftKeyState.value) {
     if (slideIndex.value === index && !isMultiSelected) return
 
@@ -205,14 +205,14 @@ const handleClickSlideThumbnail = (e: MouseEvent, index: number) => {
     for (let i = minIndex; i <= maxIndex; i++) newSelectedSlidesIndex.push(i)
     mainStore.updateSelectedSlidesIndex(newSelectedSlidesIndex)
   }
-  // 正常切换页面
+  // Switch slide normally
   else {
     mainStore.updateSelectedSlidesIndex([])
     changeSlideIndex(index)
   }
 }
 
-// 设置缩略图工具栏聚焦状态（只有聚焦状态下，该部分的快捷键才能生效）
+// Set thumbnail area focus state (keyboard shortcuts only work when focused)
 const setThumbnailsFocus = (focus: boolean) => {
   if (thumbnailsFocus.value === focus) return
   mainStore.setThumbnailsFocus(focus)
@@ -220,14 +220,14 @@ const setThumbnailsFocus = (focus: boolean) => {
   if (!focus) mainStore.updateSelectedSlidesIndex([])
 }
 
-// 拖拽调整顺序后进行数据的同步
+// Synchronize data after drag-and-drop reordering
 const handleDragEnd = (eventData: { newIndex: number; oldIndex: number }) => {
   const { newIndex, oldIndex } = eventData
   if (newIndex === undefined || oldIndex === undefined || newIndex === oldIndex) return
   sortSlides(newIndex, oldIndex)
 }
 
-// 打开批注面板
+// Open speaker notes panel
 const openNotesPanel = () => {
   mainStore.setNotesPanelState(true)
 }
@@ -262,22 +262,22 @@ const contextmenusSection = (el: HTMLElement): ContextmenuItem[] => {
 
   return [
     {
-      text: '删除节',
+      text: 'Delete Section',
       handler: () => removeSection(sectionId),
     },
     {
-      text: '删除节和幻灯片',
+      text: 'Delete Section and Slides',
       handler: () => {
         mainStore.setActiveElementIdList([])
         removeSectionSlides(sectionId)
       },
     },
     {
-      text: '删除所有节',
+      text: 'Delete All Sections',
       handler: removeAllSection,
     },
     {
-      text: '重命名节',
+      text: 'Rename Section',
       handler: () => editSection(sectionId),
     },
   ]
@@ -288,22 +288,22 @@ const { enterScreening, enterScreeningFromStart } = useScreening()
 const contextmenusThumbnails = (): ContextmenuItem[] => {
   return [
     {
-      text: '粘贴',
+      text: 'Paste',
       subText: 'Ctrl + V',
       handler: pasteSlide,
     },
     {
-      text: '全选',
+      text: 'Select All',
       subText: 'Ctrl + A',
       handler: selectAllSlide,
     },
     {
-      text: '新建页面',
+      text: 'New Slide',
       subText: 'Enter',
       handler: createSlide,
     },
     {
-      text: '幻灯片放映',
+      text: 'Slideshow',
       subText: 'F5',
       handler: enterScreeningFromStart,
     },
@@ -313,49 +313,49 @@ const contextmenusThumbnails = (): ContextmenuItem[] => {
 const contextmenusThumbnailItem = (): ContextmenuItem[] => {
   return [
     {
-      text: '剪切',
+      text: 'Cut',
       subText: 'Ctrl + X',
       handler: cutSlide,
     },
     {
-      text: '复制',
+      text: 'Copy',
       subText: 'Ctrl + C',
       handler: copySlide,
     },
     {
-      text: '粘贴',
+      text: 'Paste',
       subText: 'Ctrl + V',
       handler: pasteSlide,
     },
     {
-      text: '全选',
+      text: 'Select All',
       subText: 'Ctrl + A',
       handler: selectAllSlide,
     },
     { divider: true },
     {
-      text: '新建页面',
+      text: 'New Slide',
       subText: 'Enter',
       handler: createSlide,
     },
     {
-      text: '复制页面',
+      text: 'Copy Page',
       subText: 'Ctrl + D',
       handler: copyAndPasteSlide,
     },
     {
-      text: '删除页面',
+      text: 'Delete Page',
       subText: 'Delete',
       handler: () => deleteSlide(),
     },
     {
-      text: '增加节',
+      text: 'Add Section',
       handler: createSection,
       disable: !!currentSlide.value.sectionTag,
     },
     { divider: true },
     {
-      text: '从当前放映',
+      text: 'Present from Current',
       subText: 'Shift + F5',
       handler: enterScreening,
     },
@@ -384,6 +384,7 @@ const contextmenusThumbnailItem = (): ContextmenuItem[] => {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background-color $transitionDelay;
 
     &:hover {
       background-color: $lightGray;
@@ -396,6 +397,7 @@ const contextmenusThumbnailItem = (): ContextmenuItem[] => {
     justify-content: center;
     align-items: center;
     border-left: 1px solid $borderColor;
+    transition: background-color $transitionDelay;
 
     &:hover {
       background-color: $lightGray;
@@ -418,21 +420,51 @@ const contextmenusThumbnailItem = (): ContextmenuItem[] => {
   align-items: center;
   padding: 5px 0;
   position: relative;
+  transition: background-color $transitionDelay;
 
   .thumbnail {
     border-radius: $borderRadius;
     outline: 2px solid rgba($color: $themeColor, $alpha: .15);
+    transition: outline-color $transitionDelay, box-shadow $transitionDelay;
+  }
+
+  &:hover {
+    background-color: rgba($color: $themeColor, $alpha: .04);
+
+    .thumbnail {
+      outline-color: rgba($color: $themeColor, $alpha: .45);
+    }
+
+    .label {
+      color: #666;
+    }
   }
 
   &.active {
+    background-color: rgba($color: $themeColor, $alpha: .06);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 0 2px 2px 0;
+      background-color: $themeColor;
+    }
+
     .label {
       color: $themeColor;
     }
     .thumbnail {
       outline-color: $themeColor;
+      box-shadow: 0 1px 4px rgba($color: $themeColor, $alpha: .18);
     }
   }
   &.selected {
+    background-color: rgba($color: $themeColor, $alpha: .04);
+
     .thumbnail {
       outline-color: $themeColor;
     }
@@ -458,6 +490,11 @@ const contextmenusThumbnailItem = (): ContextmenuItem[] => {
     text-align: center;
     line-height: 12px;
     cursor: pointer;
+    transition: transform $transitionDelayFast;
+
+    &:hover {
+      transform: scale(1.15);
+    }
 
     &::after {
       content: '';
@@ -476,6 +513,7 @@ const contextmenusThumbnailItem = (): ContextmenuItem[] => {
   color: #999;
   width: 20px;
   cursor: grab;
+  transition: color $transitionDelay;
 
   &.offset-left {
     position: relative;
@@ -499,6 +537,11 @@ const contextmenusThumbnailItem = (): ContextmenuItem[] => {
   font-size: 12px;
   padding: 6px 8px 2px 18px;
   color: #555;
+  transition: color $transitionDelay;
+
+  &:hover {
+    color: #333;
+  }
 
   &.contextmenu-active {
     color: $themeColor;
