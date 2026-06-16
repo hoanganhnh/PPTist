@@ -1,63 +1,64 @@
-## 模板式AIPPT的基本原理
-1. 定义PPT结构（一套PPT中都有什么类型的页面，每种页面都有些什么内容）；
-2. 基于以上结构，定义数据格式，该数据将用于AI生成结构化的PPT数据，具体结构见：
-    - 示例数据：`public/mocks/AIPPT.json`
-    - 结构定义：`src/types/AIPPT.ts`
-3. 制作模板，模板中标记好结构类型；
-4. AI生成符合第1步定义的PPT结构的数据；
-5. 利用AI或其他方案，生成相关的配图（常见途径有：AI文生图、图库搜索匹配）；
-6. 将AI生成的数据、配图与模板进行匹配结合，生成最终的PPT。
+## Fundamentals of Template-based AIPPT
 
-> 注1：虽然当前线上版本不提供配图演示效果，但是AIPPT的方法是支持此功能的，你只需要自己提供图片源，按照要求的格式将待选图片集合传入AIPPT方法即可。
+1. Define the PPT structure (what types of pages are in a slide deck, and what content is on each type of page).
+2. Based on the above structure, define the data format. This data will be used by the AI to generate structured PPT data. For specific structures, see:
+    - Example data: `public/mocks/AIPPT.json`
+    - Structure definitions: `src/types/AIPPT.ts`
+3. Create a template and mark the structure types in it.
+4. AI generates data matching the PPT structure defined in step 1.
+5. Use AI or other solutions to generate related images (common ways: AI text-to-image, library search matching).
+6. Combine the AI-generated data, images, and the template together to generate the final PPT.
 
-> 注2：以上仅适用模板式AIPPT，非模板式AIPPT可以直接生成最终目标格式，参考：`AI_PPT_SCHEMA.md`
+> Note 1: Although the current online version does not demonstrate the image matching effect, the AIPPT method supports this feature. You only need to provide the image source and pass the set of candidate images to the AIPPT method in the required format.
 
-## AIPPT模板制作流程
-1. 打开PPTist；
-2. 制作模板页面；
-3. 打开左上角菜单[幻灯片类型标注]功能；
-4. 为制作好的页面标注页面类型和节点类型；
-5. 使用导出功能导出为JSON文件。
+> Note 2: The above only applies to template-based AIPPT. For non-template AIPPT, you can directly generate the final target format. Reference: `AI_PPT_SCHEMA.md`
 
-> 注意：实际上并不存在专门提供给AIPPT的模板。所谓的AIPPT模板只是把在PPTist中制作的普通页面标注上类型标记而已。这些数据不仅仅用于AI生成PPT，也可以作为普通的页面模板使用。
+## AIPPT Template Creation Process
+1. Open PPTist;
+2. Design template pages;
+3. Open the "Slide Type Annotation" feature in the top-left menu;
+4. Label page types and node types for the designed pages;
+5. Export as a JSON file using the export function.
 
-## 模板标记类型：页面标记和节点标记
-#### 封面页
-* 标题
-* 正文
-* 图片（背景图、页面插图）
-#### 目录页
-* 目录标题（标记类型为：列表项目）
-* 图片（背景图、页面插图）
-#### 过渡页（章节过渡）
-* 标题
-* 正文
-* 节编号
-* 图片（背景图、页面插图）
-#### 内容页
-* 标题
-* 2～4个内容项，包括：
-  * 内容项标题（标记类型为：列表项标题）
-  * 内容项正文（标记类型为：列表项目）
-  * 内容项编号（标记类型为：项目编号）
-* 图片（背景图、页面插图、项目插图）
-#### 结束页（致谢页）
-* 图片（背景图、页面插图）
+> Note: Actually, there are no special templates dedicated only to AIPPT. The so-called AIPPT template is just a normal slide deck made in PPTist with type annotations. This data can be used not only for AI PPT generation, but also as general page templates.
 
-> 节点标记分为两种 - 文本标记和图片标记：
-> - 文本标记可作用于文本节点和带文字的形状节点；
-> - 图片标记只作用于图片节点；
-> - 你可以自行添加更多类型的标记（如图表）。
+## Annotation Types: Page Annotations and Node Annotations
+#### Cover Page
+* Title
+* Content
+* Image (background image, page illustration)
+#### Table of Contents Page
+* TOC Title (annotated as: List Item)
+* Image (background image, page illustration)
+#### Transition Page (Chapter Divider)
+* Title
+* Content
+* Section Number
+* Image (background image, page illustration)
+#### Content Page
+* Title
+* 2–4 content items, including:
+  * Item Title (annotated as: List Item Title)
+  * Item Content (annotated as: List Item)
+  * Item Number (annotated as: Item Number)
+* Image (background image, page illustration, item illustration)
+#### Ending Page (Thank You Page)
+* Image (background image, page illustration)
 
-## AIPPT模板制作原则
-一个用于AIPPT的模板至少包括以下页面（至少13页，但建议30页以上）：
-* 1个封面页（建议2个以上）
-* 6个目录页：2～6项目录各1个，10项目录的1个（建议各2个）
-* 1个过渡页（建议3个以上）
-* 4个内容页：2～4项内容各1个，1项内容的1个（建议各2个）
-* 1个结束页（建议2个以上）
+> Node annotations are divided into two types - text annotations and image annotations:
+> - Text annotations can be applied to text nodes and shape nodes that contain text;
+> - Image annotations only apply to image nodes;
+> - You can add more types of annotations yourself (like charts).
 
-> 注意：
-> 1. 以上页数仅满足当前替换逻辑的最基本要求，如果希望AI生成的PPT具有一定的随机性，需要适当增加每种页面的数量（举个例子，假设模板中存在3个封面页，生成时会从3个中随机选择1个使用）；
-> 2. 当前替换逻辑下，目录页可支持1～20个目录项，内容页可支持1～12个内容项，但不需要每种数量的模板都做一遍，因为程序会自动通过模板的拼接/裁减方式来实现特殊的项目数；
-> 3. 你可以自行调整替换逻辑，以支持更多情况。
+## AIPPT Template Creation Principles
+A template used for AIPPT should contain at least the following pages (at least 13 pages, but 30+ pages recommended):
+* 1 Cover page (2+ recommended)
+* 6 Table of Contents pages: 1 each for 2 to 6 items, and 1 for 10 items (2 each recommended)
+* 1 Transition page (3+ recommended)
+* 4 Content pages: 1 each for 2 to 4 items, and 1 for 1 item (2 each recommended)
+* 1 Ending page (2+ recommended)
+
+> Note:
+> 1. The page counts above only meet the minimum requirements of the current replacement logic. If you want the AI-generated PPT to have some randomness, you should increase the number of pages of each type (for example, if there are 3 cover pages in the template, one will be selected at random when generating);
+> 2. Under the current replacement logic, the TOC page can support 1–20 TOC items, and the content page can support 1–12 content items, but you do not need to create templates for every possible quantity, as the application will automatically slice/splice templates to implement custom item counts;
+> 3. You can adjust the replacement logic yourself to support more use cases.

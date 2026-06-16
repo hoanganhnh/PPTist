@@ -2,6 +2,7 @@ import Dexie, { type EntityTable } from 'dexie'
 import { databaseId } from '@/store/main'
 import type { Slide } from '@/types/slides'
 import { LOCALSTORAGE_KEY_DISCARDED_DB } from '@/configs/storage'
+import { isFsdsMode } from '@/integrations/fsds/parent-bridge'
 
 export interface writingBoardImg {
   id: string
@@ -16,11 +17,14 @@ export interface Snapshot {
 
 const databaseNamePrefix = 'PPTist'
 
-// 删除失效/过期的数据库
-// 应用关闭时（关闭或刷新浏览器），会将其数据库ID记录在 localStorage 中，表示该ID指向的数据库已失效
-// 当应用初始化时，检查当前所有数据库，将被记录失效的数据库删除
-// 另外，距离初始化时间超过12小时的数据库也将被删除（这是为了防止出现因意外未被正确删除的库）
+// Delete invalid/expired databases
+// On app unload (close or refresh), record database ID in localStorage as invalid
+// App initialization: check all databases and delete flagged/invalid ones
+// Databases older than 12 hours will also be deleted to prevent leaks from crashes
 export const deleteDiscardedDB = async () => {
+  // Skip IndexedDB cleanup in FSDS mode — snapshot DB is disabled
+  if (isFsdsMode()) return
+
   const now = new Date().getTime()
 
   const localStorageDiscardedDB = localStorage.getItem(LOCALSTORAGE_KEY_DISCARDED_DB)
@@ -42,14 +46,30 @@ export const deleteDiscardedDB = async () => {
   localStorage.removeItem(LOCALSTORAGE_KEY_DISCARDED_DB)
 }
 
-const db = new Dexie(`${databaseNamePrefix}_${databaseId}_${new Date().getTime()}`) as Dexie & {
+/**
+ * In FSDS mode, skip Dexie DB creation entirely — rely on manual save.
+ * In standalone mode, create the snapshot DB as before.
+ */
+let db: (Dexie & {
   snapshots: EntityTable<Snapshot, 'id'>,
   writingBoardImgs: EntityTable<writingBoardImg, 'id'>,
-}
-
-db.version(1).stores({
-  snapshots: '++id',
-  writingBoardImgs: 'id',
 })
+
+if (!isFsdsMode()) {
+  db = new Dexie(`${databaseNamePrefix}_${databaseId}_${new Date().getTime()}`) as Dexie & {
+    snapshots: EntityTable<Snapshot, 'id'>,
+    writingBoardImgs: EntityTable<writingBoardImg, 'id'>,
+  }
+
+  db.version(1).stores({
+    snapshots: '++id',
+    writingBoardImgs: 'id',
+  })
+}
+else {
+  // Provide a no-op stub so imports don't crash in FSDS mode.
+  // Snapshot operations should be guarded by isFsdsMode() checks.
+  db = null as unknown as typeof db
+}
 
 export { db }

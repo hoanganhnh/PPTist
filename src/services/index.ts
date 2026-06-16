@@ -1,8 +1,12 @@
 import axios from './axios'
 import fetchRequest from './fetch'
+import { isFsdsMode } from '@/integrations/fsds/parent-bridge'
 
 // export const SERVER_URL = 'http://localhost:5000'
-export const SERVER_URL = (import.meta.env.MODE === 'development') ? '/api' : 'https://server.pptist.cn'
+// In FSDS mode, disable all PPTist public server calls (image search, AI PPT, AI writing)
+export const SERVER_URL = isFsdsMode()
+  ? ''
+  : (import.meta.env.MODE === 'development') ? '/api' : 'https://server.pptist.cn'
 
 interface ImageSearchPayload {
   query: string;

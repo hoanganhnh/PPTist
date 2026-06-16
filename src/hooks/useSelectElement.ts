@@ -6,14 +6,14 @@ export default () => {
   const { currentSlide } = storeToRefs(useSlidesStore())
   const { hiddenElementIdList, handleElementId } = storeToRefs(mainStore)
 
-  // 将当前页面全部元素设置为被选择状态
+  // Select all elements on current slide
   const selectAllElements = () => {
     const unlockedElements = currentSlide.value.elements.filter(el => !el.lock && !hiddenElementIdList.value.includes(el.id))
     const newActiveElementIdList = unlockedElements.map(el => el.id)
     mainStore.setActiveElementIdList(newActiveElementIdList)
   }
   
-  // 将指定元素设置为被选择状态
+  // Select specified element
   const selectElement = (id: string) => {
     if (handleElementId.value === id) return
     if (hiddenElementIdList.value.includes(id)) return

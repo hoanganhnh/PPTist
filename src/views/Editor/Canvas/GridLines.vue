@@ -25,14 +25,14 @@ const { currentSlide, viewportRatio, viewportSize } = storeToRefs(useSlidesStore
 
 const background = computed<SlideBackground | undefined>(() => currentSlide.value?.background)
 
-// 计算网格线的颜色，避免与背景的颜色太接近
+// Calculate grid lines color to contrast with slide background
 const gridColor = computed(() => {
   const bgColor = background.value?.color || '#fff'
   const colorList = ['#000', '#fff']
   return tinycolor.mostReadable(bgColor, colorList, { includeFallbackColors: true }).setAlpha(.5).toRgbString()
 })
 
-// 网格路径
+// Grid lines SVG path
 const path = computed(() => {
   const maxX = viewportSize.value
   const maxY = viewportSize.value * viewportRatio.value

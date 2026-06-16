@@ -204,15 +204,15 @@ const { enterScreeningFromStart } = useScreening()
 const { updateSlideIndex } = useSlideHandler()
 const { createTextElement, createShapeElement } = useCreateElement()
 
-// 组件渲染时，如果存在元素焦点，需要清除
-// 这种情况存在于：有焦点元素的情况下进入了放映模式，再退出时，需要清除原先的焦点（因为可能已经切换了页面）
+// Clear element focus when canvas component is rendered
+// Focus cleanup: deselect active elements when exiting presentation mode
 onMounted(() => {
   if (activeElementIdList.value.length) {
     nextTick(() => mainStore.setActiveElementIdList([]))
   }
 })
 
-// 点击画布的空白区域：清空焦点元素、设置画布焦点、清除文字选区、清空格式刷状态
+// Click blank canvas: clear element focus, set canvas focus, clear text selection, clear format painter
 const handleClickBlankArea = (e: MouseEvent) => {
   if (activeElementIdList.value.length) mainStore.setActiveElementIdList([])
 
@@ -224,7 +224,7 @@ const handleClickBlankArea = (e: MouseEvent) => {
   removeAllRanges()
 }
 
-// 双击空白处插入文本
+// Double click blank area to insert text
 const handleDblClick = (e: MouseEvent) => {
   if (activeElementIdList.value.length || creatingElement.value || creatingCustomShape.value) return
   if (!viewportRef.value) return
@@ -236,22 +236,22 @@ const handleDblClick = (e: MouseEvent) => {
   createTextElement({
     left,
     top,
-    width: 200 / canvasScale.value, // 除以 canvasScale 是为了与点击选区创建的形式保持相同的宽度
+    width: 200 / canvasScale.value, // Divided by canvasScale to match width of click-selection creation
     height: 0,
   })
 }
 
-// 画布注销时清空格式刷状态
+// Clear format painter state when canvas is unmounted
 onUnmounted(() => {
   if (textFormatPainter.value) mainStore.setTextFormatPainter(null)
 })
 
-// 移除画布编辑区域焦点
+// Remove canvas edit area focus
 const removeEditorAreaFocus = () => {
   if (editorAreaFocus.value) mainStore.setEditorareaFocus(false)
 }
 
-// 滚动鼠标
+// Scroll cursor
 const { scaleCanvas } = useScaleCanvas()
 const throttleScaleCanvas = throttle(scaleCanvas, 100, { leading: true, trailing: false })
 const throttleUpdateSlideIndex = throttle(updateSlideIndex, 300, { leading: true, trailing: false })
@@ -259,33 +259,33 @@ const throttleUpdateSlideIndex = throttle(updateSlideIndex, 300, { leading: true
 const handleMousewheelCanvas = (e: WheelEvent) => {
   e.preventDefault()
 
-  // 按住Ctrl键时：缩放画布
+  // Hold Ctrl key: zoom canvas
   if (ctrlKeyState.value) {
     if (e.deltaY > 0) throttleScaleCanvas('-')
     else if (e.deltaY < 0) throttleScaleCanvas('+')
   }
-  // 上下翻页
+  // Next/Previous slide navigation
   else {
     if (e.deltaY > 0) throttleUpdateSlideIndex(KEYS.DOWN)
     else if (e.deltaY < 0) throttleUpdateSlideIndex(KEYS.UP)
   }
 }
 
-// 开关标尺
+// OnOffRuler
 const toggleRuler = () => {
   mainStore.setRulerState(!showRuler.value)
 }
 
-// 开关浮动菜单
+// Toggle floating menu
 const toggleBubbleMenu = () => {
   mainStore.setBubbleMenuState(!showBubbleMenu.value)
-  message.success(`元素气泡菜单已${showBubbleMenu.value ? '启用' : '禁用'}`)
+  message.success(`Element bubble menu ${showBubbleMenu.value ? 'Enable' : 'Disable'}`)
 }
 
-// 在鼠标绘制的范围插入元素
+// Insert element in the area drawn by the cursor
 const { insertElementFromCreateSelection, formatCreateSelection } = useInsertFromCreateSelection(viewportRef)
 
-// 插入自定义任意多边形
+// Insert custom polygon
 const insertCustomShape = (data: CreateCustomShapeData) => {
   const {
     start,
@@ -307,58 +307,58 @@ const insertCustomShape = (data: CreateCustomShapeData) => {
 const contextmenus = (): ContextmenuItem[] => {
   return [
     {
-      text: '粘贴',
+      text: 'Paste',
       subText: 'Ctrl + V',
       handler: pasteElement,
     },
     {
-      text: '全选',
+      text: 'Select All',
       subText: 'Ctrl + A',
       handler: selectAllElements,
     },
     {
-      text: '标尺',
+      text: 'Ruler',
       subText: showRuler.value ? '√' : '',
       handler: toggleRuler,
     },
     {
-      text: '网格线',
+      text: 'Grid Lines',
       handler: () => mainStore.setGridLineSize(gridLineSize.value ? 0 : 50),
       children: [
         {
-          text: '无',
+          text: 'None',
           subText: gridLineSize.value === 0 ? '√' : '',
           handler: () => mainStore.setGridLineSize(0),
         },
         {
-          text: '小',
+          text: 'Small',
           subText: gridLineSize.value === 25 ? '√' : '',
           handler: () => mainStore.setGridLineSize(25),
         },
         {
-          text: '中',
+          text: 'Medium',
           subText: gridLineSize.value === 50 ? '√' : '',
           handler: () => mainStore.setGridLineSize(50),
         },
         {
-          text: '大',
+          text: 'Large',
           subText: gridLineSize.value === 100 ? '√' : '',
           handler: () => mainStore.setGridLineSize(100),
         },
       ],
     },
     {
-      text: '重置当前页',
+      text: 'ResetCurrent Slide',
       handler: deleteAllElements,
     },
     {
-      text: '气泡菜单',
+      text: 'Bubble Menu',
       subText: showBubbleMenu.value ? '√' : '',
       handler: toggleBubbleMenu,
     },
     { divider: true },
     {
-      text: '幻灯片放映',
+      text: 'Slideshow',
       subText: 'F5',
       handler: enterScreeningFromStart,
     },

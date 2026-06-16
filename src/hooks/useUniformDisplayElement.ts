@@ -53,13 +53,13 @@ export default () => {
     }
     return count
   })
-  // 水平均匀排列
+  // Align horizontally distributed
   const uniformHorizontalDisplay = () => {
     const { minX, maxX } = getElementListRange(activeElementList.value)
     const copyOfActiveElementList: PPTElement[] = JSON.parse(JSON.stringify(activeElementList.value))
     const newElementList: PPTElement[] = JSON.parse(JSON.stringify(currentSlide.value.elements))
 
-    // 分别获取普通元素和组合元素集合，并记录下每一项的范围
+    // Gather normal and group elements separately, recording the bounding range of each
     const singleElemetList: ElementItem[] = []
     let groupList: GroupItem[] = []
     for (const el of copyOfActiveElementList) {
@@ -81,12 +81,12 @@ export default () => {
       formatedGroupList.push({ min: minX, max: maxX, els: groupItem.els })
     }
 
-    // 将普通元素和组合元素集合组合在一起，然后将每一项按位置（从左到右）排序
+    // Combine normal/group elements and sort by horizontal position
     const list: Item[] = [...singleElemetList, ...formatedGroupList]
     list.sort((itemA, itemB) => itemA.min - itemB.min)
 
-    // 计算元素均匀分布所需要的间隔：
-    // (所选元素整体范围 - 所有所选元素宽度和) / (所选元素数 - 1)
+    // Calculate distribution gaps for equal spacing:
+    // (total range of selected elements - sum of all widths) / (count of selected elements - 1)
     let totalWidth = 0
     for (const item of list) {
       const width = item.max - item.min
@@ -94,10 +94,10 @@ export default () => {
     }
     const span = ((maxX - minX) - totalWidth) / (list.length - 1)
 
-    // 按位置顺序依次计算每一个元素的目标位置
-    // 第一项中的元素即为起点，无需计算
-    // 从第二项开始，每一项的位置应该为：上一项位置 + 上一项宽度 + 间隔
-    // 注意此处计算的位置（pos）并非元素最终的left值，而是目标位置范围最小值（元素旋转后的left值 ≠ 范围最小值）
+    // Calculate target positions sequentially in order
+    // The first element acts as the start point, no calculation needed
+    // From the second item onwards, each position is: previous position + previous width + interval
+    // Note: pos represents the minimum bound coordinates, not the final left offset (rotated left != min bound)
     const sortedElementData: ElementWithPos[] = []
 
     const firstItem = list[0]
@@ -132,8 +132,8 @@ export default () => {
       }
     }
 
-    // 根据目标位置计算元素最终目标left值
-    // 对于旋转后的元素，需要计算旋转前后left的偏移来做校正
+    // Calculate final left value coordinates from target bounds
+    // Recalculate left offset shift for rotated elements to correct positioning
     for (const element of newElementList) {
       if (!activeElementIdList.value.includes(element.id)) continue
 
@@ -158,7 +158,7 @@ export default () => {
     addHistorySnapshot()
   }
 
-  // 垂直均匀排列（逻辑类似水平均匀排列方法）
+  // Align vertically distributed (similar to horizontal distribution)
   const uniformVerticalDisplay = () => {
     const { minY, maxY } = getElementListRange(activeElementList.value)
     const copyOfActiveElementList: PPTElement[] = JSON.parse(JSON.stringify(activeElementList.value))

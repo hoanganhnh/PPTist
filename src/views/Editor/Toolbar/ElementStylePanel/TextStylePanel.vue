@@ -15,12 +15,12 @@
     <Divider />
 
     <div class="row">
-      <div style="width: 40%;">行间距：</div>
+      <div style="width: 40%;">Line Height：</div>
       <Select style="width: 60%;"
         :value="lineHeight || 1"
         @update:value="value => updateText({ lineHeight: value as number })"
         :options="lineHeightOptions.map(item => ({
-          label: item + '倍', value: item
+          label: item + 'x', value: item
         }))"
       >
         <template #icon>
@@ -29,7 +29,7 @@
       </Select>
     </div>
     <div class="row">
-      <div style="width: 40%;">段间距：</div>
+      <div style="width: 40%;">Paragraph Spacing：</div>
       <Select style="width: 60%;"
         :value="paragraphSpace || 0"
         @update:value="value => updateText({ paragraphSpace: value as number })"
@@ -43,7 +43,7 @@
       </Select>
     </div>
     <div class="row">
-      <div style="width: 40%;">字间距：</div>
+      <div style="width: 40%;">Letter Spacing：</div>
       <Select style="width: 60%;"
         :value="wordSpace || 0"
         @update:value="value => updateText({ wordSpace: value as number })"
@@ -57,7 +57,7 @@
       </Select>
     </div>
     <div class="row">
-      <div style="width: 40%;">文本框填充：</div>
+      <div style="width: 40%;">Text BoxFill：</div>
       <Popover trigger="click" style="width: 60%;">
         <template #content>
           <ColorPicker
@@ -79,7 +79,7 @@
         @update:value="value => updateInset(0, value)"
         style="width: 45%;"
       >
-        <template #prefix>上边距：</template>
+        <template #prefix>Top Margin:</template>
       </NumberInput>
       <div style="width: 10%;"></div>
       <NumberInput
@@ -89,7 +89,7 @@
         @update:value="value => updateInset(2, value)"
         style="width: 45%;"
       >
-        <template #prefix>下边距：</template>
+        <template #prefix>Bottom Margin:</template>
       </NumberInput>
     </div>
     <div class="row">
@@ -100,7 +100,7 @@
         @update:value="value => updateInset(3, value)"
         style="width: 45%;"
       >
-        <template #prefix>左边距：</template>
+        <template #prefix>Left Margin:</template>
       </NumberInput>
       <div style="width: 10%;"></div>
       <NumberInput
@@ -110,7 +110,7 @@
         @update:value="value => updateInset(1, value)"
         style="width: 45%;"
       >
-        <template #prefix>右边距：</template>
+        <template #prefix>Right Margin:</template>
       </NumberInput>
     </div>
 
@@ -142,11 +142,11 @@ import NumberInput from '@/components/NumberInput.vue'
 import Select from '@/components/Select.vue'
 import Popover from '@/components/Popover.vue'
 
-// 注意，存在一个未知原因的BUG，如果文本加粗后文本框高度增加，画布的可视区域定位会出现错误
-// 因此在执行预置样式命令时，将加粗命令放在尽可能靠前的位置，避免字号增大后再加粗
+// Note: Bold style increases textbox height, which may trigger positioning layout errors
+// Execute Bold command early to avoid sizing issues if layout heights change
 const presetStyles = [
   {
-    label: '大标题',
+    label: 'Heading 1',
     style: {
       fontSize: '26px',
       fontWeight: 700,
@@ -159,7 +159,7 @@ const presetStyles = [
     ],
   },
   {
-    label: '小标题',
+    label: 'Heading 2',
     style: {
       fontSize: '22px',
       fontWeight: 700,
@@ -172,7 +172,7 @@ const presetStyles = [
     ],
   },
   {
-    label: '正文',
+    label: 'Body',
     style: {
       fontSize: '20px',
     },
@@ -182,7 +182,7 @@ const presetStyles = [
     ],
   },
   {
-    label: '正文[小]',
+    label: 'Body [Small]',
     style: {
       fontSize: '18px',
     },
@@ -192,7 +192,7 @@ const presetStyles = [
     ],
   },
   {
-    label: '注释 1',
+    label: 'Annotation 1',
     style: {
       fontSize: '16px',
       fontStyle: 'italic',
@@ -204,7 +204,7 @@ const presetStyles = [
     ],
   },
   {
-    label: '注释 2',
+    label: 'Annotation 2',
     style: {
       fontSize: '16px',
       textDecoration: 'underline',
@@ -249,7 +249,7 @@ const lineHeightOptions = [0.9, 1.0, 1.15, 1.2, 1.4, 1.5, 1.8, 2.0, 2.5, 3.0]
 const wordSpaceOptions = [0, 1, 2, 3, 4, 5, 6, 8, 10]
 const paragraphSpaceOptions = [0, 5, 10, 15, 20, 25, 30, 40, 50, 80]
 
-// 发送富文本设置命令（批量）
+// Dispatch rich text formatting commands (batch)
 const emitBatchRichTextCommand = (action: RichTextAction[]) => {
   emitter.emit(EmitterEvents.RICH_TEXT_COMMAND, { action })
 }

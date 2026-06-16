@@ -29,7 +29,7 @@
 # 👀 Front-Row Reminder
 1. The target audience for this project is developers with web slide development needs and basic web development experience. The provided link is for demonstration purposes only and does not offer any online services. This project should not be used directly as a tool, nor does it support out-of-the-box use. If you simply need a ready-made service or tool, please consider other products.
 2. Here are some summarized [Frequently Asked Questions](/doc/Q&A.md). When raising Issues or submitting PRs for the first time, be sure to read this document in advance.
-3. For commercial use, please refer to [商业用途](#-商业用途)
+3. For commercial use, please refer to [Commercial Use](#-commercial-use)
 
 
 # 🧩 Project Positioning
@@ -213,47 +213,47 @@ If you wish to use this project for commercial gain, I hope you will respect ope
 
 
 
-# 🧮 商业用途
-## 商用须知
-- 本项目禁止闭源商用，如果你希望将其用于商业项目，请尊重开源，**严格遵循 [AGPL-3.0 协议](https://www.gnu.org/licenses/agpl-3.0.html)**，回馈开源社区；
-- 如果你因为任何原因，无法执行 AGPL-3.0 协议，可以选择：
-    1. 使用 Apache 2.0 协议版本（最后更新时间为2022年5月，已停止维护，[点此下载](https://github.com/pipipi-pikachu/PPTist/archive/f1a35bb8e045124e37dcafd6acbf40b4531b69aa.zip)）；
-    2. 成为项目的重要贡献者（先违反协议后再成为贡献者不适用此项），包括：
-        - 你的代码被本项目作为依赖引用，包括：npm安装、文件引用、代码片段引用（引用处会注明）；
-        - 你给本项目提交过重要的 PR 或 Issue（由作者主观判断，符合的 PR 或 Issue 会打上`important contribution`标签）；
-    3. [邮件联系作者](mailto:pipipi_pikachu@163.com)付费获取独立的商业授权（违反协议后被作者找到的不适用此项）。独立授权价格：
-        - 一年：2999元；
-        - 永久：5699元（不含税）；
-- 请优先考虑执行AGPL-3.0协议，如需付费获取独立的商业授权，请务必在联系作者前阅读以下内容：
-    - **独立商业授权表示**：
-        - 作者单独出具商业授权协议文件（邮件联系作者获取），双方按流程签署协议；
-        - 允许将代码用于商业行为，且不必执行 AGPL-3.0 协议；
-        - 授权对象可以是个人或组织（企业），允许授权对象名下的所有产品使用本项目代码；
-    - **授权流程**：
-        1. 被授权方确认协议内容，若无异议，需提供协议中所需的个人/企业信息；
-        2. 由作者补充好协议双方信息后打印签字，并将电子扫描件发给被授权方；
-        3. 被授权方收到后，将协议打印盖章，再扫描电子档发回给作者，此时协议开始生效；
-        4. 被授权方在协议规定时间内支付费用，并保留好支付凭证，授权结束；
-    - **授权不等于出售软件或服务**：
-        - 不存在其他“商业版本”、不提供任何API/SDK/在线服务/技术支持/技术咨询/定制开发；
-        - 不提供可直接交付的产品，你仍需从本仓库获取代码自行开发；
-        - 该软件无法开箱即用，至少也得自行接入后端能力（需要有最基本的web开发经验）；
-        - 不保证未来版本的兼容性，不保证代码没有bug；
-        - 作者不承担任何因使用本项目代码而导致的直接或间接损失；
-        - 务必提前做好调研，判断该软件是否符合需求，包括但不限于功能（是否能满足业务需求）和开发（是否上手当前技术栈/实现方案）；
-- 不接受[黑名单/耻辱柱](/doc/Blacklist.md)或存在违反协议行为的对象通过任何形式获取商业授权；
-- 作者倡导异步沟通（正式、信息整合度高），**不加私人微信/QQ/手机号等**，有任何授权相关疑问请邮件联系，谢谢理解；
-- 提需求/报bug/询问技术方案等非授权相关咨询，请在 [Issues](https://github.com/pipipi-pikachu/PPTist/issues) 中进行。
+# 🧮 Commercial Use
+## Commercial Notice
+- This project is prohibited for closed-source commercial use. If you wish to use it in commercial projects, please respect open source, **strictly comply with the [AGPL-3.0 License](https://www.gnu.org/licenses/agpl-3.0.html)**, and give back to the open source community.
+- If for any reason you cannot comply with the AGPL-3.0 license, you can choose:
+    1. Use the Apache 2.0 license version (last updated in May 2022, no longer maintained, [click here to download](https://github.com/pipipi-pikachu/PPTist/archive/f1a35bb8e045124e37dcafd6acbf40b4531b69aa.zip)).
+    2. Become an important contributor to the project (not applicable if you become a contributor after violating the license first), which includes:
+        - Your code is referenced as a dependency by this project, including: npm installation, file reference, code snippet reference (source will be indicated);
+        - You have submitted important PRs or Issues to this project (subjectively judged by the author, qualifying PRs or Issues will be tagged with `important contribution`);
+    3. [Email the author](mailto:pipipi_pikachu@163.com) to pay for an independent commercial license (not applicable to those found by the author after violating the license). Independent license pricing:
+        - One year: 2999 RMB;
+        - Permanent: 5699 RMB (excl. tax);
+- Please prioritize complying with the AGPL-3.0 license. If you need to pay for an independent commercial license, please be sure to read the following before contacting the author:
+    - **Independent Commercial License Details**:
+        - The author will issue a separate commercial license agreement document (contact the author by email to obtain it), and both parties will sign the agreement according to the process;
+        - Allows the code to be used for commercial activities without complying with the AGPL-3.0 license;
+        - The license target can be an individual or an organization (enterprise), allowing all products under the license target name to use the code of this project;
+    - **Licensing Process**:
+        1. The licensee confirms the content of the agreement, and if there is no objection, provides the personal/enterprise information required in the agreement;
+        2. The author signs after adding the information of both parties, and sends the electronic scan to the licensee;
+        3. Upon receipt, the licensee prints and seals the agreement, then scans and sends the electronic version back to the author, at which point the agreement takes effect;
+        4. The licensee pays the fee within the time specified in the agreement and keeps the payment certificate, and the licensing is complete;
+    - **Licensing is not equal to selling software or services**:
+        - There is no other "commercial version", and no APIs/SDKs/online services/technical support/technical consulting/custom development are provided;
+        - No ready-to-deliver products are provided; you still need to obtain the code from this repository and develop it yourself;
+        - This software is not plug-and-play, at least you need to connect the backend capabilities yourself (basic web development experience is required);
+        - Compatibility of future versions is not guaranteed, and no guarantee is made that the code is bug-free;
+        - The author is not liable for any direct or indirect losses caused by using the code of this project;
+        - Be sure to conduct research in advance to judge whether the software meets your requirements, including but not limited to functions (whether it can meet business needs) and development (whether the current tech stack/implementation plan is easy to use);
+- We do not accept any form of commercial licensing for entities on the [Blacklist/Hall of Shame](/doc/Blacklist.md) or those with history of license violations;
+- The author advocates asynchronous communication (formal, highly integrated information), **does not add personal WeChat/QQ/phone numbers, etc.**, please contact by email for any licensing related questions, thank you for your understanding;
+- To suggest features/report bugs/ask about technical solutions, please use [Issues](https://github.com/pipipi-pikachu/PPTist/issues).
 
-## AGPL-3.0 协议
-协议核心要求用通俗的语言解释如下：
-- **开源义务**：如果你用了 AGPL 的代码，无论你或你的下游怎么使用/修改，都必须把你最终的代码全部完整公开出来，并继续以 AGPL 协议开源（强调：必须延续 AGPL 协议，保持开源的传染性，不能更换其他协议）。
-- **网络服务也要开源**：即使你只是用 AGPL 的代码做了一个网站或网络服务，别人通过网络用你的服务时，你也需要遵守上一条**开源义务**。
-- **保留版权声明**：你不能删掉代码里原来的作者信息和许可证声明，得告诉大家这代码是从哪儿来的。
-- **不能加额外限制**：你不能在衍生出来的 AGPL 代码上加一些限制，比如不让别人再分发代码，或者要求别人付费才能使用代码（包括但不限于：要求别人购买授权/服务/产品等）。
-- **免责声明**：作者不保证代码没有 bug，也不对使用后果负责。
+## AGPL-3.0 License
+The core requirements of the license are explained in plain language as follows:
+- **Open Source Obligation**: If you use AGPL code, no matter how you or your downstream users use/modify it, you must make your final code completely public and continue to open source it under the AGPL license (emphasis: the AGPL license must be continued to maintain the infectivity of open source, and cannot be replaced with other licenses).
+- **Network Services Must Also Be Open Source**: Even if you only use AGPL code to make a website or network service, you must still comply with the above **Open Source Obligation** when others use your service over the network.
+- **Retain Copyright Notice**: You cannot delete the original author information and license notice in the code, and you must tell everyone where the code came from.
+- **No Additional Restrictions**: You cannot add additional restrictions to the derived AGPL code, such as preventing others from redistributing the code or requiring others to pay to use the code (including but not limited to: requiring others to purchase licenses/services/products, etc.).
+- **Disclaimer**: The author does not guarantee that the code is bug-free, nor is the author responsible for the consequences of its use.
 
-> 详细协议内容见官方文档：[AGPL-3.0 协议](https://www.gnu.org/licenses/agpl-3.0.html)
+> Detailed license content can be found in the official document: [AGPL-3.0 License](https://www.gnu.org/licenses/agpl-3.0.html)
 
 
 # ⭐ Star History

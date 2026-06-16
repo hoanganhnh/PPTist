@@ -8,7 +8,8 @@ import Components from 'unplugin-vue-components/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '',
+  // Configurable base path for FSDS deployment (e.g. '/slides-editor/')
+  base: process.env.VITE_BASE_PATH || '',
   plugins: [
     vue(),
     Components({
@@ -38,6 +39,11 @@ export default defineConfig({
         target: 'https://server.pptist.cn',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      // FSDS backend proxy for dev mode (avoids CORS)
+      '/slides': {
+        target: process.env.VITE_FSDS_API_BASE_URL || 'http://localhost:3002',
+        changeOrigin: true,
       }
     }
   },

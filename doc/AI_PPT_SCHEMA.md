@@ -1,43 +1,43 @@
-# PPT_DATA_SCHEMA
+# PPT Data Schema
 
-> 注意，该文档专用于 AI 生成，并非完整数据定义
+> Note: This document is dedicated to AI generation, and is not a complete data definition.
 
-约定默认画布：
+Default canvas conventions:
 
-- 逻辑宽度固定为 `1000`
-- 逻辑高度固定为 `562.5`
-- 原点固定在页面左上角
-- 坐标单位统一为逻辑像素 `px`
-- 除线条外，元素默认都使用矩形包围盒表达位置和尺寸
+- Logic width is fixed to `1000`
+- Logic height is fixed to `562.5`
+- Origin is fixed at the top-left corner of the page
+- Coordinate unit is unified as logic pixels `px`
+- Except for lines, elements use rectangular bounding boxes by default to represent positions and sizes.
 
-## 坐标系与通用规则
+## Coordinate System and Common Rules
 
-### 页面坐标系
+### Page Coordinate System
 
-- 页面原点是左上角，即 `(0, 0)`
-- 页面右下角默认是 `(1000, 562.5)`
-- `x` 向右增大，`y` 向下增大
+- Page origin is top-left, i.e., `(0, 0)`
+- Page bottom-right defaults to `(1000, 562.5)`
+- `x` increases to the right, `y` increases downward
 
-### 通用几何字段
+### Common Geometric Fields
 
-以下规则适用于文本、图片、形状、表格、图表这类“矩形元素”：
+The following rules apply to "rectangular elements" such as text, images, shapes, tables, and charts:
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 必须 | 元素唯一 ID，全局唯一，如 `el_title_01` |
-| `left` | `number` | 必须 | 元素未旋转时包围盒左上角的 `x` |
-| `top` | `number` | 必须 | 元素未旋转时包围盒左上角的 `y` |
-| `width` | `number` | 必须 | 元素包围盒宽度 |
-| `height` | `number` | 必须 | 元素包围盒高度 |
-| `rotate` | `number` | 必须 | 顺时针旋转角度，单位度，通常填 `0` |
+| `id` | `string` | Yes | Unique element ID, globally unique, e.g., `el_title_01` |
+| `left` | `number` | Yes | Bounding box top-left corner `x` coordinate when unrotated |
+| `top` | `number` | Yes | Bounding box top-left corner `y` coordinate when unrotated |
+| `width` | `number` | Yes | Bounding box width |
+| `height` | `number` | Yes | Bounding box height |
+| `rotate` | `number` | Yes | Clockwise rotation angle in degrees, usually `0` |
 
-注：
-- 矩形元素的旋转中心是元素中心点
-- `left/top/width/height` 始终描述“未旋转前”的包围盒
+Note:
+- The rotation center of a rectangular element is its center point.
+- `left/top/width/height` always describe the bounding box before rotation.
 
-### 共享样式结构
+### Shared Style Structures
 
-#### 边框 `outline`
+#### Border `outline`
 
 ```json
 {
@@ -47,13 +47,13 @@
 }
 ```
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `style` | `"solid" \\| "dashed" \\| "dotted"` | 建议 | 边框样式 |
-| `width` | `number` | 建议 | 边框宽度 |
-| `color` | `string` | 建议 | 边框颜色 |
+| `style` | `"solid" \\| "dashed" \\| "dotted"` | Recommended | Border style |
+| `width` | `number` | Recommended | Border width |
+| `color` | `string` | Recommended | Border color |
 
-#### 阴影 `shadow`
+#### Shadow `shadow`
 
 ```json
 {
@@ -64,14 +64,14 @@
 }
 ```
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `h` | `number` | 建议 | 水平偏移 |
-| `v` | `number` | 建议 | 垂直偏移 |
-| `blur` | `number` | 建议 | 模糊半径 |
-| `color` | `string` | 建议 | 阴影颜色 |
+| `h` | `number` | Recommended | Horizontal offset |
+| `v` | `number` | Recommended | Vertical offset |
+| `blur` | `number` | Recommended | Blur radius |
+| `color` | `string` | Recommended | Shadow color |
 
-#### 渐变 `gradient`
+#### Gradient `gradient`
 
 ```json
 {
@@ -84,101 +84,101 @@
 }
 ```
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"linear" \\| "radial"` | 必须 | 渐变类型 |
-| `rotate` | `number` | 建议 | 线性渐变角度 |
-| `colors` | `{ pos: number; color: string }[]` | 必须 | 渐变色标，`pos` 为 0 到 100 |
+| `type` | `"linear" \\| "radial"` | Yes | Gradient type |
+| `rotate` | `number` | Recommended | Linear gradient rotation angle |
+| `colors` | `{ pos: number; color: string }[]` | Yes | Gradient color stops, `pos` ranges from 0 to 100 |
 
-### 富文本内容约束
+### Rich Text Content Constraints
 
-文本元素和形状内文本都使用 HTML 字符串。只有以下列出的 HTML 节点和内联样式会被识别，**严禁使用未列出的标签或样式**。
+Both text elements and shape text use HTML strings. Only the HTML tags and inline styles listed below will be recognized. **It is strictly prohibited to use any other tags or styles.**
 
-- 块级标签：`p`、`ul`、`ol`、`li`、`blockquote`
-- 行内标签：`strong`、`em`、`u`、`strike`、`sup`、`sub`、`code`、`a`
-- 行内样式标签：`span`
+- Block-level tags: `p`、`ul`、`ol`、`li`、`blockquote`
+- Inline tags: `strong`、`em`、`u`、`strike`、`sup`、`sub`、`code`、`a`
+- Inline style tags: `span`
 
-支持的样式：
+Supported CSS properties:
 
 - `span`：`color`、`background-color`、`font-size`、`font-family`
 - `p`：`text-align`
 - `ul/ol`：`list-style-type`、`font-size`、`color`
 
-富文本示例：
+Rich text examples:
 
-**单段居中标题**
-
-```html
-<p style="text-align:center;"><span style="font-size:32px;color:#0F172A;">年度经营复盘</span></p>
-```
-
-**多段正文**
+**Single-paragraph centered title**
 
 ```html
-<p>第一段文字内容。</p>
-<p>第二段文字内容，其中<strong>关键词加粗</strong>展示。</p>
+<p style="text-align:center;"><span style="font-size:32px;color:#0F172A;">Annual Business Review</span></p>
 ```
 
-**无序列表**
+**Multi-paragraph body text**
+
+```html
+<p>First paragraph text content.</p>
+<p>Second paragraph content, with <strong>keywords bolded</strong>.</p>
+```
+
+**Unordered list**
 
 ```html
 <ul>
-  <li><p>列表项一</p></li>
-  <li><p>列表项二</p></li>
+  <li><p>List item one</p></li>
+  <li><p>List item two</p></li>
 </ul>
 ```
 
-> **列表格式要求**：`<li>` 内部必须包裹 `<p>` 标签，如 `<li><p>内容</p></li>`。
+> **List formatting requirement**: Inside `<li>`, content must be wrapped in a `<p>` tag, e.g., `<li><p>Content</p></li>`.
 
-### 文本类型
+### Text Types
 
-`title`: 标题
-`subtitle`: 副标题
-`content`: 正文
-`item`: 列表项目
-`itemTitle`: 列表项标题
-`notes`: 注释
-`header`: 页眉
-`footer`: 页脚
-`partNumber`: 节编号
-`itemNumber`: 项目编号
+`title`: Title
+`subtitle`: Subtitle
+`content`: Body Content
+`item`: List Item
+`itemTitle`: List Item Title
+`notes`: Speaker Notes / Annotations
+`header`: Header
+`footer`: Footer
+`partNumber`: Section / Part Number
+`itemNumber`: Item Number
 
-### 可用字体
+### Available Fonts
 
-> 字体仅允许从以下列表选择，缺省值（未填写时）为系统默认字体
+> Fonts must be chosen only from the list below; if omitted, the system default font will be used.
 
-`SourceHanSans`： 思源黑体
-`SourceHanSerif`： 思源宋体
-`WenDingPLKaiTi`： 文鼎PL楷体
-`WenDingPLSongTi`： 文鼎PL宋体
-`ZhuqueFangSong`： 朱雀仿宋
-`LXGWWenKai`： 霞鹜文楷
-`AlibabaPuHuiTi`： 阿里巴巴普惠体
-`MiSans`： MiSans
-`DeYiHei`： 得意黑
-`CangerXiaowanzi`： 仓耳小丸子
-`YousheTitleBlack`： 优设标题黑
-`FengguangMingrui`： 峰广明锐体
-`ShetuModernSquare`： 摄图摩登小方体
-`ZcoolHappy`： 站酷快乐体
-`ZizhiQuXiMai`： 字制区喜脉体
-`SucaiJishiKangkang`： 素材集市康康体
-`SucaiJishiCoolSquare`： 素材集市酷方体
-`TuniuRounded`： 途牛类圆体
-`RuiziZhenyan`： 锐字真言体
-`SourceSerif4`： Source Serif 4
-`JetBrainsMono`： JetBrains Mono
-`Literata`： Literata
-`Inter`： Inter
-`Roboto`： Roboto
-`OpenSans`： Open Sans
-`Montserrat`： Montserrat
-`SourceSansPro`： Source Sans Pro
-`Merriweather`： Merriweather
+`SourceHanSans`: Source Han Sans
+`SourceHanSerif`: Source Han Serif
+`WenDingPLKaiTi`: WenDing PL Kaiti
+`WenDingPLSongTi`: WenDing PL Songti
+`ZhuqueFangSong`: Zhuque Fangsong
+`LXGWWenKai`: LXGW Wenkai
+`AlibabaPuHuiTi`: Alibaba PuHuiTi
+`MiSans`: MiSans
+`DeYiHei`: DeYiHei
+`CangerXiaowanzi`: Canger Xiaowanzi
+`YousheTitleBlack`: Youshe Title Black
+`FengguangMingrui`: Fengguang Mingrui
+`ShetuModernSquare`: Shetu Modern Square
+`ZcoolHappy`: Zcool Happy
+`ZizhiQuXiMai`: Zizhi Qu XiMai
+`SucaiJishiKangkang`: Sucai Jishi Kangkang
+`SucaiJishiCoolSquare`: Sucai Jishi Cool Square
+`TuniuRounded`: Tuniu Rounded
+`RuiziZhenyan`: Ruizi Zhenyan
+`SourceSerif4`: Source Serif 4
+`JetBrainsMono`: JetBrains Mono
+`Literata`: Literata
+`Inter`: Inter
+`Roboto`: Roboto
+`OpenSans`: Open Sans
+`Montserrat`: Montserrat
+`SourceSansPro`: Source Sans Pro
+`Merriweather`: Merriweather
 
-## 页面 Slide
+## Slide Page
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -191,15 +191,15 @@
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 必须 | 页面唯一 ID |
-| `background` | `object` | 建议 | 页面背景，包含纯色背景和渐变背景 |
-| `elements` | `array` | 必须 | 本页元素数组 |
+| `id` | `string` | Yes | Unique page ID |
+| `background` | `object` | Recommended | Page background, includes solid color or gradient background |
+| `elements` | `array` | Yes | Array of elements on this page |
 
-#### 纯色背景
+#### Solid Color Background
 
 ```json
 {
@@ -208,7 +208,7 @@
 }
 ```
 
-#### 渐变背景
+#### Gradient Background
 
 ```json
 {
@@ -224,17 +224,17 @@
 }
 ```
 
-背景字段说明：
+Background field descriptions:
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"solid" \\| "gradient"` | 必须 | 背景类型 |
-| `color` | `string` | `solid` 时必须 | 背景纯色 |
-| `gradient` | `Gradient` | `gradient` 时必须 | 背景渐变 |
+| `type` | `"solid" \\| "gradient"` | Yes | Background type |
+| `color` | `string` | Yes for `solid` | Solid background color |
+| `gradient` | `Gradient` | Yes for `gradient` | Gradient background configuration |
 
-## 文本元素 `text`
+## Text Element `text`
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -245,31 +245,31 @@
   "width": 856,
   "height": 72,
   "rotate": 0,
-  "content": "<p><strong>年度经营分析</strong></p>",
+  "content": "<p><strong>Annual Business Analysis</strong></p>",
   "defaultFontName": "SourceHanSans",
   "defaultColor": "#1F2937"
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"text"` | 必须 | 元素类型 |
-| `content` | `string` | 必须 | 富文本 HTML |
-| `defaultFontName` | `string` | 必须 | 默认字体，未被内联样式覆盖时生效 |
-| `defaultColor` | `string` | 必须 | 默认文字颜色，未被内联样式覆盖时生效 |
-| `fill` | `string` | 可选 | 文本框背景色 |
-| `outline` | `object` | 可选 | 文本框边框 |
-| `lineHeight` | `number` | 建议 | 行高倍数，默认约 `1.5` |
-| `wordSpace` | `number` | 可选 | 字间距，单位 px |
-| `opacity` | `number` | 可选 | 透明度，`0~1` |
-| `shadow` | `object` | 可选 | 文本框阴影 |
-| `textType` | `string` | 可选 | 文本类型 |
+| `type` | `"text"` | Yes | Element type |
+| `content` | `string` | Yes | Rich text HTML content |
+| `defaultFontName` | `string` | Yes | Default font, used if not overridden by inline style |
+| `defaultColor` | `string` | Yes | Default text color, used if not overridden by inline style |
+| `fill` | `string` | Optional | Textbox background fill color |
+| `outline` | `object` | Optional | Textbox border outline |
+| `lineHeight` | `number` | Recommended | Line height multiplier, default approx `1.5` |
+| `wordSpace` | `number` | Optional | Character spacing in px |
+| `opacity` | `number` | Optional | Opacity, `0~1` |
+| `shadow` | `object` | Optional | Textbox shadow |
+| `textType` | `string` | Optional | Text type |
 
-## 图片元素 `image`
+## Image Element `image`
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -281,27 +281,27 @@
   "height": 182,
   "rotate": 0,
   "src": "https://images.pexels.com/photos/730670/pexels-photo-730670.jpeg",
-  "description": "深蓝商务风办公室场景，一位亚洲女性站在玻璃白板前讲解增长曲线，光线干净，16:9 构图"
+  "description": "Dark blue business office scene, an Asian woman standing in front of a glass whiteboard explaining a growth curve, clean lighting, 16:9 composition"
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"image"` | 必须 | 元素类型 |
-| `src` | `string` | 必须 | 图片资源地址 |
-| `description` | `string` | 必须 | 用于后续调用生图模型 |
-| `outline` | `object` | 可选 | 图片轮廓边框 |
-| `filters` | `object` | 可选 | 图片滤镜 |
-| `clip` | `object` | 可选 | 图片裁剪 |
-| `shadow` | `object` | 可选 | 阴影 |
-| `radius` | `number` | 可选 | 圆角半径，主要用于矩形裁剪 |
-| `colorMask` | `string` | 可选 | 颜色蒙版 |
+| `type` | `"image"` | Yes | Element type |
+| `src` | `string` | Yes | Image resource URL |
+| `description` | `string` | Yes | Description prompt for generating image via AI models |
+| `outline` | `object` | Optional | Image border outline |
+| `filters` | `object` | Optional | Image filters |
+| `clip` | `object` | Optional | Image crop clip properties |
+| `shadow` | `object` | Optional | Shadow |
+| `radius` | `number` | Optional | Corner radius, mainly for rectangular cropping |
+| `colorMask` | `string` | Optional | Color mask overlay |
 
-### 图片滤镜 `filters`
+### Image Filters `filters`
 
-示例：
+Example:
 
 ```json
 {
@@ -312,23 +312,23 @@
 }
 ```
 
-支持字段：
+Supported fields:
 
-| 字段 | 类型 | 说明 |
+| Field | Type | Description |
 | --- | --- | --- |
-| `blur` | `string` | 如 `"2px"` |
-| `brightness` | `string` | 如 `"110%"` |
-| `contrast` | `string` | 如 `"105%"` |
-| `grayscale` | `string` | 如 `"100%"` |
-| `saturate` | `string` | 如 `"80%"` |
-| `hue-rotate` | `string` | 如 `"90deg"` |
-| `sepia` | `string` | 如 `"60%"` |
-| `invert` | `string` | 如 `"100%"` |
-| `opacity` | `string` | 如 `"70%"` |
+| `blur` | `string` | e.g. `"2px"` |
+| `brightness` | `string` | e.g. `"110%"` |
+| `contrast` | `string` | e.g. `"105%"` |
+| `grayscale` | `string` | e.g. `"100%"` |
+| `saturate` | `string` | e.g. `"80%"` |
+| `hue-rotate` | `string` | e.g. `"90deg"` |
+| `sepia` | `string` | e.g. `"60%"` |
+| `invert` | `string` | e.g. `"100%"` |
+| `opacity` | `string` | e.g. `"70%"` |
 
-### 图片裁剪 `clip`
+### Image Clipping/Cropping `clip`
 
-示例：
+Example:
 
 ```json
 {
@@ -337,20 +337,20 @@
 }
 ```
 
-字段说明：
+Field Descriptions:
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `shape` | `string` | 建议 | 裁剪形状 key |
-| `range` | `[[number, number], [number, number]]` | 必须 | 以百分比描述原图裁剪区间 |
+| `shape` | `string` | Recommended | Crop shape key |
+| `range` | `[[number, number], [number, number]]` | Yes | Percentage range for original image crop interval |
 
-`range` 说明：
+`range` details:
 
 - `[[x1, y1], [x2, y2]]`
-- 范围为原图百分比，`0` 到 `100`
-- `[[10, 10], [90, 90]]` 表示截取原图中间 80% 的区域
+- Bounded by image percentage from `0` to `100`
+- `[[10, 10], [90, 90]]` represents cropping the center 80% region of the image
 
-可使用的 `shape`：
+Available `shape` keys:
 
 - `rect`
 - `roundRect`
@@ -360,9 +360,9 @@
 - `pentagon`
 - `hexagon`
 
-## 形状元素 `shape`
+## Shape Element `shape`
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -379,32 +379,32 @@
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"shape"` | 必须 | 元素类型 |
-| `viewBox` | `[number, number]` | 必须 | 路径坐标系大小，例如 `[1000, 1000]` |
-| `path` | `string` | 必须 | SVG path `d` 字符串 |
-| `fill` | `string` | 必须 | 填充色；若同时有 `gradient`，则 `gradient` 优先 |
-| `gradient` | `object` | 可选 | 渐变填充 |
-| `outline` | `object` | 可选 | 形状边框 |
-| `opacity` | `number` | 可选 | 透明度，`0~1` |
-| `shadow` | `object` | 可选 | 阴影 |
-| `text` | `object` | 可选 | 形状内文本 |
+| `type` | `"shape"` | Yes | Element type |
+| `viewBox` | `[number, number]` | Yes | Path coordinate system size, e.g. `[1000, 1000]` |
+| `path` | `string` | Yes | SVG path `d` string |
+| `fill` | `string` | Yes | Fill color; overridden by `gradient` if present |
+| `gradient` | `object` | Optional | Gradient fill |
+| `outline` | `object` | Optional | Shape outline border |
+| `opacity` | `number` | Optional | Opacity, `0~1` |
+| `shadow` | `object` | Optional | Shadow |
+| `text` | `object` | Optional | Text content inside shape |
 
-### `path` 绘制规范
+### `path` Drawing Standards
 
-- 只能使用标准 SVG path 命令：`M`、`L`、`Q`、`C`、`A`、`Z`
-- 路径坐标全部写在 `viewBox` 坐标系内，推荐统一使用 `viewBox: [1000, 1000]`
+- Only standard SVG path commands are supported: `M`, `L`, `Q`, `C`, `A`, `Z`
+- Path coordinates are drawn within the `viewBox` system; we recommend using `[1000, 1000]` consistently
 
-### 形状内文本 `text`
+### Text inside Shape `text`
 
-示例：
+Example:
 
 ```json
 {
-  "content": "<p><strong>核心结论</strong></p>",
+  "content": "<p><strong>Core Conclusion</strong></p>",
   "defaultFontName": "SourceHanSans",
   "defaultColor": "#1D4ED8",
   "align": "middle",
@@ -413,21 +413,21 @@
 }
 ```
 
-字段说明：
+Field Descriptions:
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `content` | `string` | 必须 | 富文本 HTML |
-| `defaultFontName` | `string` | 必须 | 默认字体 |
-| `defaultColor` | `string` | 必须 | 默认文字颜色 |
-| `align` | `"top" \\| "middle" \\| "bottom"` | 必须 | 文本在形状内部的垂直对齐 |
-| `lineHeight` | `number` | 建议 | 行高倍数 |
-| `wordSpace` | `number` | 可选 | 字间距 |
-| `type` | `string` | 可选 | 文本类型 |
+| `content` | `string` | Yes | Rich text HTML content |
+| `defaultFontName` | `string` | Yes | Default font |
+| `defaultColor` | `string` | Yes | Default text color |
+| `align` | `"top" \\| "middle" \\| "bottom"` | Yes | Vertical alignment of text inside the shape |
+| `lineHeight` | `number` | Recommended | Line height multiplier |
+| `wordSpace` | `number` | Optional | Character spacing |
+| `type` | `string` | Optional | Text type |
 
-## 线条元素 `line`
+## Line Element `line`
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -444,33 +444,33 @@
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"line"` | 必须 | 元素类型 |
-| `id` | `string` | 必须 | 元素 ID |
-| `left` | `number` | 必须 | 线条局部坐标系左上角在页面中的位置 |
-| `top` | `number` | 必须 | 线条局部坐标系左上角在页面中的位置 |
-| `start` | `[number, number]` | 必须 | 起点，相对 `left/top` |
-| `end` | `[number, number]` | 必须 | 终点，相对 `left/top` |
-| `width` | `number` | 必须 | 线宽，不是包围盒宽度 |
-| `style` | `"solid" \\| "dashed" \\| "dotted"` | 必须 | 线型 |
-| `color` | `string` | 必须 | 线条颜色 |
-| `points` | `["" \\| "arrow" \\| "dot", "" \\| "arrow" \\| "dot"]` | 必须 | 起点和终点端点样式 |
-| `shadow` | `object` | 可选 | 阴影 |
+| `type` | `"line"` | Yes | Element type |
+| `id` | `string` | Yes | Element ID |
+| `left` | `number` | Yes | Line local coordinate system top-left corner x offset |
+| `top` | `number` | Yes | Line local coordinate system top-left corner y offset |
+| `start` | `[number, number]` | Yes | Start point coordinates, relative to `left`/`top` |
+| `end` | `[number, number]` | Yes | End point coordinates, relative to `left`/`top` |
+| `width` | `number` | Yes | Line width stroke thickness (not bounding box width) |
+| `style` | `"solid" \\| "dashed" \\| "dotted"` | Yes | Line style |
+| `color` | `string` | Yes | Line color |
+| `points` | `["" \\| "arrow" \\| "dot", "" \\| "arrow" \\| "dot"]` | Yes | Endpoints decorative markers style |
+| `shadow` | `object` | Optional | Shadow |
 
-### 线条与其他元素的关键差异
+### Key Differences Between Line and Other Elements
 
-- 没有 `height`
-- 没有 `rotate`
-- `width` 表示描边粗细，不表示几何宽度
-- 方向完全由 `start` 和 `end` 决定
-- `left/top` 只是线条局部坐标系的锚点
+- Has no `height` attribute
+- Has no `rotate` angle attribute
+- `width` represents line stroke thickness, not geometric bounding box width
+- Line direction is fully determined by `start` and `end` point offsets
+- `left`/`top` simply acts as the coordinate origin anchor for the line
 
-## 表格元素 `table`
+## Table Element `table`
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -490,38 +490,38 @@
   "cellMinHeight": 45,
   "data": [
     [
-      { "id": "c_1_1", "colspan": 1, "rowspan": 1, "text": "区域" },
-      { "id": "c_1_2", "colspan": 1, "rowspan": 1, "text": "收入" },
-      { "id": "c_1_3", "colspan": 1, "rowspan": 1, "text": "同比" }
+      { "id": "c_1_1", "colspan": 1, "rowspan": 1, "text": "Region" },
+      { "id": "c_1_2", "colspan": 1, "rowspan": 1, "text": "Revenue" },
+      { "id": "c_1_3", "colspan": 1, "rowspan": 1, "text": "YoY" }
     ],
     [
-      { "id": "c_2_1", "colspan": 1, "rowspan": 1, "text": "华东" },
-      { "id": "c_2_2", "colspan": 1, "rowspan": 1, "text": "3200 万" },
+      { "id": "c_2_1", "colspan": 1, "rowspan": 1, "text": "East China" },
+      { "id": "c_2_2", "colspan": 1, "rowspan": 1, "text": "32 Million" },
       { "id": "c_2_3", "colspan": 1, "rowspan": 1, "text": "+18%" }
     ]
   ]
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"table"` | 必须 | 元素类型 |
-| `outline` | `object` | 必须 | 表格边框 |
-| `theme` | `object` | 可选 | 表格主题色和头尾行列标记 |
-| `colWidths` | `number[]` | 必须 | 每列宽度占比，总和应为 `1` |
-| `cellMinHeight` | `number` | 必须 | 每行最小高度 |
-| `data` | `TableCell[][]` | 必须 | 二维单元格数据 |
+| `type` | `"table"` | Yes | Element type |
+| `outline` | `object` | Yes | Table outline border |
+| `theme` | `object` | Optional | Table theme colors and row/column indicators |
+| `colWidths` | `number[]` | Yes | Relative column widths ratios (sum must equal `1.0`) |
+| `cellMinHeight` | `number` | Yes | Minimum height threshold for rows |
+| `data` | `TableCell[][]` | Yes | 2D cell data matrix |
 
-### 单元格 `TableCell`
+### Table Cell `TableCell`
 
 ```json
 {
   "id": "c_1_1",
   "colspan": 1,
   "rowspan": 1,
-  "text": "区域",
+  "text": "Region",
   "style": {
     "bold": true,
     "color": "#111827",
@@ -534,32 +534,32 @@
 }
 ```
 
-字段说明：
+Field Descriptions:
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | 必须 | 单元格 ID |
-| `colspan` | `number` | 必须 | 跨列数，默认 `1` |
-| `rowspan` | `number` | 必须 | 跨行数，默认 `1` |
-| `text` | `string` | 必须 | 纯文本内容 |
-| `style` | `object` | 可选 | 单元格样式 |
+| `id` | `string` | Yes | Cell ID |
+| `colspan` | `number` | Yes | Columns spanned count, defaults to `1` |
+| `rowspan` | `number` | Yes | Rows spanned count, defaults to `1` |
+| `text` | `string` | Yes | Plain text content |
+| `style` | `object` | Optional | Cell formatting style |
 
-### 单元格样式 `style`
+### Cell Styles `style`
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `bold` | `boolean` | 可选 | 加粗 |
-| `em` | `boolean` | 可选 | 斜体 |
-| `underline` | `boolean` | 可选 | 下划线 |
-| `strikethrough` | `boolean` | 可选 | 删除线 |
-| `color` | `string` | 可选 | 文字颜色 |
-| `backcolor` | `string` | 可选 | 单元格背景色 |
-| `fontsize` | `string` | 可选 | 字号，如 `"14px"` |
-| `fontname` | `string` | 可选 | 字体名 |
-| `align` | `"left" \\| "center" \\| "right" \\| "justify"` | 可选 | 水平对齐 |
-| `vAlign` | `"top" \\| "middle" \\| "bottom"` | 可选 | 垂直对齐 |
+| `bold` | `boolean` | Optional | Bold font |
+| `em` | `boolean` | Optional | Italic font |
+| `underline` | `boolean` | Optional | Underlined text |
+| `strikethrough` | `boolean` | Optional | Strikethrough text |
+| `color` | `string` | Optional | Text color |
+| `backcolor` | `string` | Optional | Cell background color |
+| `fontsize` | `string` | Optional | Font size, e.g. `"14px"` |
+| `fontname` | `string` | Optional | Font family name |
+| `align` | `"left" \\| "center" \\| "right" \\| "justify"` | Optional | Horizontal alignment |
+| `vAlign` | `"top" \\| "middle" \\| "bottom"` | Optional | Vertical alignment |
 
-### 表格主题 `theme`
+### Table Theme `theme`
 
 ```json
 {
@@ -571,17 +571,17 @@
 }
 ```
 
-说明：
+Description:
 
-- `color` 是主题主色
-- `rowHeader` 表示首行视为表头
-- `rowFooter` 表示末行视为表尾
-- `colHeader` 表示首列视为表头列
-- `colFooter` 表示末列视为表尾列
+- `color` is the primary theme color
+- `rowHeader` flags if the first row is styled as the header
+- `rowFooter` flags if the last row is styled as the footer/total row
+- `colHeader` flags if the first column is styled as a header column
+- `colFooter` flags if the last column is styled as a footer column
 
-## 图表元素 `chart`
+## Chart Element `chart`
 
-### 最小推荐结构
+### Minimum Recommended Structure
 
 ```json
 {
@@ -595,7 +595,7 @@
   "chartType": "column",
   "data": {
     "labels": ["Q1", "Q2", "Q3", "Q4"],
-    "legends": ["营收"],
+    "legends": ["Revenue"],
     "series": [[120, 150, 180, 210]]
   },
   "themeColors": ["#3B82F6", "#93C5FD"],
@@ -604,24 +604,24 @@
 }
 ```
 
-### 字段说明
+### Field Descriptions
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | `"chart"` | 必须 | 元素类型 |
-| `fill` | `string` | 可选 | 图表容器背景色 |
-| `chartType` | `"bar" \\| "column" \\| "line" \\| "pie" \\| "ring" \\| "area" \\| "radar" \\| "scatter"` | 必须 | 图表类型 |
-| `data` | `object` | 必须 | 图表数据 |
-| `themeColors` | `string[]` | 必须 | 系列主题色，至少 1 个 |
-| `textColor` | `string` | 可选 | 坐标轴、标签、图例文字颜色 |
-| `lineColor` | `string` | 可选 | 网格线或雷达轴线颜色 |
+| `type` | `"chart"` | Yes | Element type |
+| `fill` | `string` | Optional | Chart container background fill color |
+| `chartType` | `"bar" \\| "column" \\| "line" \\| "pie" \\| "ring" \\| "area" \\| "radar" \\| "scatter"` | Yes | Chart type |
+| `data` | `object` | Yes | Chart data payload |
+| `themeColors` | `string[]` | Yes | Series theme colors, at least 1 color |
+| `textColor` | `string` | Optional | Text color for labels, axis, and legends |
+| `lineColor` | `string` | Optional | Gridlines or radar axis lines color |
 
-### 数据结构 `data`
+### Data Structure `data`
 
 ```json
 {
   "labels": ["Q1", "Q2", "Q3", "Q4"],
-  "legends": ["营收", "利润"],
+  "legends": ["Revenue", "Profit"],
   "series": [
     [120, 150, 180, 210],
     [25, 28, 33, 41]
@@ -629,38 +629,38 @@
 }
 ```
 
-| 字段 | 类型 | 必须 | 说明 |
+| Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `labels` | `string[]` | 必须 | 类目标签 |
-| `legends` | `string[]` | 建议 | 系列名称 |
-| `series` | `number[][]` | 必须 | 数据序列数组 |
+| `labels` | `string[]` | Yes | Category labels |
+| `legends` | `string[]` | Recommended | Series names |
+| `series` | `number[][]` | Yes | 2D data series array |
 
-### 数据约束
+### Data Constraints
 
-#### 柱状图 / 条形图 / 折线图 / 面积图
+#### Column / Bar / Line / Area Charts
 
-- `labels.length` 应等于每个 `series[i].length`
-- `legends.length` 应等于 `series.length`
+- `labels.length` must equal each series array length `series[i].length`
+- `legends.length` must equal the number of series `series.length`
 
-#### 饼图 / 环形图
+#### Pie / Ring (Donut) Charts
 
-- 只使用 `series[0]`
-- `series[0].length` 应等于 `labels.length`
-- `labels` 表示每个扇区名称
-- `legends` 可写一个系列名，也可与 `labels` 保持一致，但渲染主要依赖 `labels`
+- Uses only `series[0]`
+- `series[0].length` must equal `labels.length`
+- `labels` represent sector/slice names
+- `legends` can be a single series name, or match `labels`, but rendering depends mainly on `labels`
 
-#### 雷达图
+#### Radar Charts
 
-- `labels` 表示雷达各维度名
-- `series[i].length` 应等于 `labels.length`
-- `legends.length` 应等于 `series.length`
+- `labels` represent radar axis dimension names
+- `series[i].length` must equal `labels.length`
+- `legends.length` must equal the number of series `series.length`
 
-#### 散点图
+#### Scatter Charts
 
-- `series[0]` 视为 `x` 数据
-- `series[1]` 视为 `y` 数据
+- `series[0]` is treated as `x` data points
+- `series[1]` is treated as `y` data
 
-## 综合示例数据
+## Comprehensive Sample Data
 
 ```json
 {
@@ -685,7 +685,7 @@
       "width": 856,
       "height": 72,
       "rotate": 0,
-      "content": "<p><strong>2026 年第一季度营收结构分析</strong></p>",
+      "content": "<p><strong>Q1 2026 Revenue Structure Analysis</strong></p>",
       "defaultFontName": "SourceHanSans",
       "defaultColor": "#0F172A",
       "lineHeight": 1.2,
@@ -699,7 +699,7 @@
       "width": 856,
       "height": 96,
       "rotate": 0,
-      "content": "<p>本页展示 2026 年第一季度营收构成。整体上，<strong>企业服务</strong>仍是主要收入来源，教育培训与订阅服务形成稳定补充，其他业务占比相对较小。</p>",
+      "content": "<p>This page displays the revenue structure for Q1 2026. Overall, <strong>Enterprise Services</strong> remain the main revenue source, while education training and subscription services provide stable supplements, with other businesses representing relatively small shares.</p>",
       "defaultFontName": "SourceHanSans",
       "defaultColor": "#334155",
       "lineHeight": 1.5,
@@ -716,8 +716,8 @@
       "fill": "#FFFFFF",
       "chartType": "pie",
       "data": {
-        "labels": ["企业服务", "教育培训", "订阅服务", "其他"],
-        "legends": ["营收占比"],
+        "labels": ["Enterprise Services", "Education & Training", "Subscription Services", "Other"],
+        "legends": ["Revenue Share"],
         "series": [
           [46, 24, 18, 12]
         ]

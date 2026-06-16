@@ -1,4 +1,4 @@
-// 参考：https://github.com/andrejewski/himalaya 用TypeScript重写并简化部分功能
+// Ref: https://github.com/andrejewski/himalaya Rewritten and simplified in TypeScript
 
 import { lexer } from './lexer'
 import { parser } from './parser'

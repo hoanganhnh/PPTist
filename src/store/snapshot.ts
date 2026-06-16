@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { IndexableTypeArray } from 'dexie'
 import { db, type Snapshot } from '@/utils/database'
+import { isFsdsMode } from '@/integrations/fsds/parent-bridge'
 
 import { useSlidesStore } from './slides'
 import { useMainStore } from './main'
@@ -12,8 +13,8 @@ export interface ScreenState {
 
 export const useSnapshotStore = defineStore('snapshot', {
   state: (): ScreenState => ({
-    snapshotCursor: -1, // 历史快照指针
-    snapshotLength: 0, // 历史快照长度
+    snapshotCursor: -1, // History snapshot pointer
+    snapshotLength: 0, // History snapshot length
   }),
 
   getters: {
@@ -34,6 +35,9 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
 
     async initSnapshotDatabase() {
+      // Snapshot DB disabled in FSDS mode — rely on manual save
+      if (isFsdsMode()) return
+
       const slidesStore = useSlidesStore()
   
       const newFirstSnapshot = {
@@ -46,38 +50,40 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
   
     async addSnapshot() {
+      if (isFsdsMode()) return
+
       const slidesStore = useSlidesStore()
 
-      // 获取当前indexeddb中全部快照的ID
+      // Get the ID of all snapshots in indexeddb
       const allKeys = await db.snapshots.orderBy('id').keys()
   
       let needDeleteKeys: IndexableTypeArray = []
   
-      // 记录需要删除的快照ID
-      // 若当前快照指针不处在最后一位，那么再添加快照时，应该将当前指针位置后面的快照全部删除，对应的实际情况是：
-      // 用户撤回多次后，再进行操作（添加快照），此时原先被撤销的快照都应该被删除
+      // Record snapshot IDs that need to be deleted
+      // If the current snapshot pointer is not at the last position, when a new snapshot is added, all snapshots after the current pointer should be deleted. This corresponds to:
+      // the user undoes multiple times and then performs a new operation (adding a snapshot), at which point the previously undone snapshots should be deleted
       if (this.snapshotCursor >= 0 && this.snapshotCursor < allKeys.length - 1) {
         needDeleteKeys = allKeys.slice(this.snapshotCursor + 1)
       }
   
-      // 添加新快照
+      // Add new snapshot
       const snapshot = {
         index: slidesStore.slideIndex,
         slides: JSON.parse(JSON.stringify(slidesStore.slides)),
       }
       await db.snapshots.add(snapshot)
   
-      // 计算当前快照长度，用于设置快照指针的位置（此时指针应该处在最后一位，即：快照长度 - 1）
+      // Calculate the current snapshot length, used to set the snapshot pointer position (the pointer should be at the last position, i.e., length - 1)
       let snapshotLength = allKeys.length - needDeleteKeys.length + 1
   
-      // 快照数量超过长度限制时，应该将头部多余的快照删除
+      // When the number of snapshots exceeds the length limit, the oldest snapshots at the head should be deleted
       const snapshotLengthLimit = 20
       if (snapshotLength > snapshotLengthLimit) {
         needDeleteKeys.push(allKeys[0])
         snapshotLength--
       }
   
-      // 快照数大于1时，需要保证撤回操作后维持页面焦点不变：也就是将倒数第二个快照对应的索引设置为当前页的索引
+      // When the snapshot count is greater than 1, we need to ensure that the slide focus remains unchanged after an undo: setting the index of the second-to-last snapshot to the current slide index
       // https://github.com/pipipi-pikachu/PPTist/issues/27
       if (snapshotLength >= 2) {
         db.snapshots.update(allKeys[snapshotLength - 2] as number, { index: slidesStore.slideIndex })
@@ -90,6 +96,7 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
   
     async unDo() {
+      if (isFsdsMode()) return
       if (this.snapshotCursor <= 0) return
 
       const slidesStore = useSlidesStore()
@@ -109,6 +116,7 @@ export const useSnapshotStore = defineStore('snapshot', {
     },
   
     async reDo() {
+      if (isFsdsMode()) return
       if (this.snapshotCursor >= this.snapshotLength - 1) return
 
       const slidesStore = useSlidesStore()

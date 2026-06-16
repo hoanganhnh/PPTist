@@ -196,23 +196,23 @@ const contextmenus = (el: HTMLElement): ContextmenuItem[] => {
   if (lv === 1) {
     return [
       {
-        text: '添加子级大纲（章）',
-        handler: () => addItem(id, 'next', '新的一章'),
+        text: 'Add Sub-outline (Chapter)',
+        handler: () => addItem(id, 'next', 'New Chapter'),
       },
     ]
   }
   else if (lv === 2) {
     return [
       {
-        text: '上方添加同级大纲（章）',
-        handler: () => addItem(id, 'prev', '新的一章'),
+        text: 'Add Chapter Above',
+        handler: () => addItem(id, 'prev', 'New Chapter'),
       },
       {
-        text: '添加子级大纲（节）',
-        handler: () => addItem(id, 'next', '新的一节'),
+        text: 'Add Sub-outline (Section)',
+        handler: () => addItem(id, 'next', 'New Section'),
       },
       {
-        text: '删除此章',
+        text: 'Delete This Chapter',
         handler: () => deleteItem(id, true),
       },
     ]
@@ -220,30 +220,30 @@ const contextmenus = (el: HTMLElement): ContextmenuItem[] => {
   else if (lv === 3) {
     return [
       {
-        text: '上方添加同级大纲（节）',
-        handler: () => addItem(id, 'prev', '新的一节'),
+        text: 'Add Section Above',
+        handler: () => addItem(id, 'prev', 'New Section'),
       },
       {
-        text: '添加子级大纲（项）',
-        handler: () => addItem(id, 'next', '新的一项'),
+        text: 'Add Sub-outline (Item)',
+        handler: () => addItem(id, 'next', 'New Item'),
       },
       {
-        text: '删除此节',
+        text: 'Delete This Section',
         handler: () => deleteItem(id, true),
       },
     ]
   }
   return [
     {
-      text: '上方添加同级大纲（项）',
-      handler: () => addItem(id, 'prev', '新的一项'),
+      text: 'Add Item Above',
+      handler: () => addItem(id, 'prev', 'New Item'),
     },
     {
-      text: '下方添加同级大纲（项）',
-      handler: () => addItem(id, 'next', '新的一项'),
+      text: 'Add Item Below',
+      handler: () => addItem(id, 'next', 'New Item'),
     },
     {
-      text: '删除此项',
+      text: 'Delete This Item',
       handler: () => deleteItem(id),
     },
   ]
@@ -335,13 +335,13 @@ const contextmenus = (el: HTMLElement): ContextmenuItem[] => {
     }
   }
   .item.lv-1 .flag::after {
-    content: '主题';
+    content: 'Theme';
   }
   .item.lv-2 .flag::after {
-    content: '章';
+    content: 'Chapter';
   }
   .item.lv-3 .flag::after {
-    content: '节';
+    content: 'Section';
   }
   .item.lv-4 .flag::after {
     opacity: 0;
