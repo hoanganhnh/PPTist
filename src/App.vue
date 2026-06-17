@@ -39,6 +39,9 @@ import {
   stopDirtyTracking,
   destroySession,
   registerSaveHandler,
+  normalizeDeckAssets,
+  AssetChecksumCache,
+  AssetUploadError,
 } from '@/integrations/fsds'
 import useImport from '@/hooks/useImport'
 
@@ -115,15 +118,22 @@ async function bootFsds(): Promise<void> {
 
     if (shouldImportResourcePptx(deckResponse)) {
       await importResourcePptx(deckResponse.ownerId)
-      const payload = mapStoreToSavePayload(
+      // RT-S2: Normalize imported PPTX assets before initial save
+      const importSnapshot = structuredClone(mapStoreToSavePayload(
         slidesStore.title,
         slidesStore.theme,
         slidesStore.slides,
         slidesStore.viewportSize,
         slidesStore.viewportRatio,
         deckState.version,
+      ))
+      const { payload, assetPatches } = await normalizeDeckAssets(
+        deckId,
+        importSnapshot,
+        assetChecksumCache,
       )
       const result = await saveDeck(deckId, payload)
+      applyNormalizedAssetsToStore(assetPatches)
       updateDeckVersion(result.version)
     }
 
@@ -218,8 +228,58 @@ if (!_isFsdsMode) {
 }
 
 /**
+ * Session-level checksum cache — persists across save attempts so retries
+ * and version-conflict recoveries don't re-upload already-uploaded images.
+ */
+const assetChecksumCache = new AssetChecksumCache()
+
+/**
+ * Apply normalized asset URLs to the live Pinia store after PATCH success.
+ * This ensures setBaseline() snapshot matches the saved payload.
+ */
+function applyNormalizedAssetsToStore(
+  assetPatches: Array<{ path: (string | number)[]; url: string }>,
+): void {
+  if (assetPatches.length === 0) return
+
+  // The patches contain paths like ['slides', 0, 'elements', 2, 'src']
+  // We need to apply them to the live store objects
+  for (const patch of assetPatches) {
+    const [root, ...rest] = patch.path
+    if (root === 'slides' && typeof rest[0] === 'number') {
+      const slideIndex = rest[0]
+      const slide = slidesStore.slides[slideIndex]
+      if (!slide) continue
+      // Navigate to the target field in the live slide
+      let current: unknown = slide
+      for (let i = 1; i < rest.length - 1; i++) {
+        current = (current as Record<string | number, unknown>)[rest[i]]
+        if (!current) break
+      }
+      if (current) {
+        const lastKey = rest[rest.length - 1]
+        ;(current as Record<string | number, unknown>)[lastKey] = patch.url
+      }
+    }
+    else if (root === 'theme') {
+      // Theme-level patches (if any)
+      let current: unknown = slidesStore.theme
+      for (let i = 0; i < rest.length - 1; i++) {
+        current = (current as Record<string | number, unknown>)[rest[i]]
+        if (!current) break
+      }
+      if (current) {
+        const lastKey = rest[rest.length - 1]
+        ;(current as Record<string | number, unknown>)[lastKey] = patch.url
+      }
+    }
+  }
+}
+
+/**
  * Save the current deck state to the FSDS backend.
- * Exposed globally for toolbar/header integration.
+ * Normalizes base64 image data to uploaded asset URLs before PATCH.
+ * Store is only mutated after successful PATCH (RT-S2 invariant).
  */
 async function handleFsdsSave(): Promise<void> {
   if (!_isFsdsMode) return
@@ -230,26 +290,42 @@ async function handleFsdsSave(): Promise<void> {
   const { getSession } = await import('@/integrations/fsds/editor-session')
   const session = getSession()
 
-  const payload = mapStoreToSavePayload(
+  // RT-S2: structuredClone snapshot before normalization — live store is NOT mutated
+  const snapshot = structuredClone(mapStoreToSavePayload(
     slidesStore.title,
     slidesStore.theme,
     slidesStore.slides,
     slidesStore.viewportSize,
     slidesStore.viewportRatio,
     session.deckVersion,
-  )
+  ))
 
   try {
+    // Normalize: upload base64 images and replace with URLs in snapshot
+    const { payload, assetPatches } = await normalizeDeckAssets(
+      deckId,
+      snapshot,
+      assetChecksumCache,
+    )
+
+    // PATCH with normalized payload
     const result = await saveDeck(deckId, payload)
+
+    // RT-S2: Only after PATCH success — apply normalized URLs to live store
+    applyNormalizedAssetsToStore(assetPatches)
     updateDeckVersion(result.version)
     setBaseline()
     sendSaved(deckId, result.version, result.updatedAt)
   }
   catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
-    const code = (error as { response?: { status?: number } })?.response?.status === 409
-      ? 'VERSION_CONFLICT'
-      : 'SAVE_ERROR'
+    let code = 'SAVE_ERROR'
+    if (error instanceof AssetUploadError) {
+      code = error.code
+    }
+    else if ((error as { response?: { status?: number } })?.response?.status === 409) {
+      code = 'VERSION_CONFLICT'
+    }
     sendSaveFailed(deckId, code, message)
   }
 }

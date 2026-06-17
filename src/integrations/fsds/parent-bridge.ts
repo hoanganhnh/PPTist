@@ -17,6 +17,7 @@ export const EVENTS = {
   ERROR: 'SLIDES_EDITOR_ERROR',
   NAVIGATE_BACK: 'SLIDES_EDITOR_NAVIGATE_BACK',
   TOKEN_REFRESH: 'SLIDES_EDITOR_TOKEN_REFRESH',
+  UPLOAD_PROGRESS: 'SLIDES_EDITOR_UPLOAD_PROGRESS',
 
   // Parent → Child
   BOOTSTRAP: 'SLIDES_EDITOR_BOOTSTRAP',
@@ -224,6 +225,13 @@ export function sendNavigateBack(deckId: string): void {
  */
 export function sendTokenRefresh(deckId: string): void {
   postToParent(EVENTS.TOKEN_REFRESH, { deckId })
+}
+
+/**
+ * Report upload progress to parent during asset normalization.
+ */
+export function sendUploadProgress(uploaded: number, total: number): void {
+  postToParent(EVENTS.UPLOAD_PROGRESS, { uploaded, total })
 }
 
 /**

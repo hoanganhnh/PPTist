@@ -44,3 +44,9 @@ export {
   stopDirtyTracking,
   getIsDirty,
 } from './dirty-tracker'
+
+export {
+  normalizeDeckAssets,
+  AssetChecksumCache,
+  AssetUploadError,
+} from './asset-normalizer'

@@ -112,3 +112,35 @@ export async function saveDeck(
   )
   return data
 }
+
+/** Asset upload response from POST /slides/:id/assets */
+export interface FsdsAssetResponse {
+  url: string
+  key: string
+  checksum: string
+  mimeType: string
+  size: number
+  status: 'staged' | 'referenced'
+}
+
+/**
+ * Upload a single image asset for a slide deck.
+ * Uses a longer timeout than JSON requests since uploads can be slow.
+ */
+export async function uploadDeckAsset(
+  deckId: string,
+  file: File,
+): Promise<FsdsAssetResponse> {
+  if (!client) throw new Error('FSDS API client not initialized')
+  const formData = new FormData()
+  formData.append('file', file)
+  const { data } = await client.post<FsdsAssetResponse>(
+    `/slides/${deckId}/assets`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120_000,
+    },
+  )
+  return data
+}
