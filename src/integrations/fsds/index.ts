@@ -50,3 +50,7 @@ export {
   AssetChecksumCache,
   AssetUploadError,
 } from './asset-normalizer'
+
+export {
+  classifySaveError,
+} from './save-error-classifier'

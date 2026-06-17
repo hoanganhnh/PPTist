@@ -41,7 +41,7 @@ import {
   registerSaveHandler,
   normalizeDeckAssets,
   AssetChecksumCache,
-  AssetUploadError,
+  classifySaveError,
 } from '@/integrations/fsds'
 import useImport from '@/hooks/useImport'
 
@@ -318,14 +318,7 @@ async function handleFsdsSave(): Promise<void> {
     sendSaved(deckId, result.version, result.updatedAt)
   }
   catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error)
-    let code = 'SAVE_ERROR'
-    if (error instanceof AssetUploadError) {
-      code = error.code
-    }
-    else if ((error as { response?: { status?: number } })?.response?.status === 409) {
-      code = 'VERSION_CONFLICT'
-    }
+    const { code, message } = classifySaveError(error)
     sendSaveFailed(deckId, code, message)
   }
 }
