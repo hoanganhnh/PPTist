@@ -37,13 +37,45 @@ interface AIWritingPayload {
   command: string
 }
 
+const getMockData = (filename: string): Promise<any> => {
+  return axios.get(`./mocks/${filename}.json`)
+}
+
 export default {
-  getMockData(filename: string): Promise<any> {
-    return axios.get(`./mocks/${filename}.json`)
-  },
+  getMockData,
 
   searchImage(body: ImageSearchPayload): Promise<any> {
-    return axios.post(`${SERVER_URL}/tools/img_search`, body)
+    const fetchMock = () => {
+      return getMockData('imgs').then((mockImgs: any[]) => {
+        let filtered = mockImgs
+        if (body.query && body.query.toLowerCase() !== 'landscape') {
+          const queryLower = body.query.toLowerCase()
+          filtered = mockImgs.filter(img => img.src.toLowerCase().includes(queryLower))
+          if (filtered.length === 0) {
+            filtered = mockImgs
+          }
+        }
+        
+        const page = body.page || 1
+        const perPage = body.per_page || 50
+        const start = (page - 1) * perPage
+        const end = start + perPage
+        const sliced = filtered.slice(start, end)
+        
+        return {
+          data: sliced,
+          total: filtered.length
+        }
+      })
+    }
+
+    if (isFsdsMode() || !SERVER_URL) {
+      return fetchMock()
+    }
+
+    return axios.post(`${SERVER_URL}/tools/img_search`, body).catch(() => {
+      return fetchMock()
+    })
   },
 
   AIPPT_Outline({

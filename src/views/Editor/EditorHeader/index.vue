@@ -3,7 +3,8 @@
     <div class="left">
       <Popover trigger="click" placement="bottom-start" v-model:value="mainMenuVisible">
         <template #content>
-          <div class="main-menu">
+          <!-- Popper AI generate tool -->
+          <!-- <div class="main-menu">
             <div class="ai-menu" @click="openAIPPTDialog(); mainMenuVisible = false">
               <div class="icon"><i-custom:click /></div>
               <div class="aippt-content">
@@ -11,7 +12,7 @@
                 <div class="aippt-subtitle">Enter a sentence to intelligently generate a presentation</div>
               </div>
             </div>
-          </div>
+          </div> -->
           <Divider :margin="10" />
           <div class="import-section">
             <div class="import-label">ImportFile</div>
@@ -22,7 +23,7 @@
               }">
                 <span class="icon"><i-custom:file-ppt /></span>
                 <span class="label">PPTX</span>
-                <span class="sub-label">(Test Only)</span>
+                <!-- <span class="sub-label">(Test Only)</span> -->
               </FileInput>
               <FileInput class="import-block" accept=".json" @change="files => {
                 importJSON(files)
@@ -32,14 +33,14 @@
                 <span class="label">JSON</span>
                 <span class="sub-label">(Test Only)</span>
               </FileInput>
-              <FileInput class="import-block" accept=".pptist" @change="files => {
+              <!-- <FileInput class="import-block" accept=".pptist" @change="files => {
                 importSpecificFile(files)
                 mainMenuVisible = false
               }">
                 <span class="icon"><i-custom:file-pptist /></span>
                 <span class="label">PPTIST</span>
                 <span class="sub-label">(Exclusive Format)</span>
-              </FileInput>
+              </FileInput> -->
             </div>
           </div>
           <Divider :margin="10" />
@@ -48,10 +49,8 @@
           <PopoverMenuItem class="popover-menu-item" @click="resetSlides(); mainMenuVisible = false"><i-icon-park-outline:refresh class="icon" /> ResetSlide</PopoverMenuItem>
           <PopoverMenuItem class="popover-menu-item" @click="openMarkupPanel(); mainMenuVisible = false"><i-icon-park-outline:mark class="icon" /> SlideTypeAnnotation</PopoverMenuItem>
           <PopoverMenuItem class="popover-menu-item" @click="mainMenuVisible = false; hotkeyDrawerVisible = true"><i-icon-park-outline:command class="icon" /> Shortcuts</PopoverMenuItem>
-          <PopoverMenuItem class="popover-menu-item" @click="goLink('https://github.com/pipipi-pikachu/PPTist/issues')"><i-icon-park-outline:comment class="icon" /> Feedback</PopoverMenuItem>
-          <PopoverMenuItem class="popover-menu-item" @click="goLink('https://github.com/pipipi-pikachu/PPTist/blob/master/doc/Q&A.md')"><i-icon-park-outline:helpcenter class="icon" /> FAQ</PopoverMenuItem>
           <Divider :margin="10" />
-          <div class="statement">Note: This site is for testing/demo purposes only and does not provide any services</div>
+          <!-- <div class="statement">Note: This site is for testing/demo purposes only and does not provide any services</div> -->
         </template>
         <div class="menu-item"><i-icon-park-outline:hamburger-button class="icon" /></div>
       </Popover>
@@ -86,15 +85,12 @@
           <div class="arrow-btn"><i-icon-park-outline:down class="arrow" /></div>
         </Popover>
       </div>
-      <div class="menu-item" v-tooltip="'AI Generate PPT'" @click="openAIPPTDialog(); mainMenuVisible = false">
+      <!-- <div class="menu-item" v-tooltip="'AI Generate PPT'" @click="openAIPPTDialog(); mainMenuVisible = false">
         <span class="text ai">AI</span>
-      </div>
+      </div> -->
       <div class="menu-item" v-tooltip="'Export'" @click="setDialogForExport('pptx')">
         <i-icon-park-outline:download class="icon" />
       </div>
-      <a class="github-link" v-tooltip="'Copyright © 2020-PRESENT pipipi-pikachu'" href="https://github.com/pipipi-pikachu/PPTist" target="_blank">
-        <div class="menu-item"><i-icon-park-outline:github class="icon" /></div>
-      </a>
     </div>
 
     <Drawer
@@ -166,6 +162,7 @@ const openMarkupPanel = () => {
   mainStore.setMarkupPanelState(true)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const openAIPPTDialog = () => {
   mainStore.setAIPPTDialogState(true)
 }

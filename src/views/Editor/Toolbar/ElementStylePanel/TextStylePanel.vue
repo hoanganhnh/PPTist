@@ -148,7 +148,7 @@ const presetStyles = [
   {
     label: 'Heading 1',
     style: {
-      fontSize: '26px',
+      fontSize: '22px',
       fontWeight: 700,
     },
     cmd: [
@@ -161,7 +161,7 @@ const presetStyles = [
   {
     label: 'Heading 2',
     style: {
-      fontSize: '22px',
+      fontSize: '20px',
       fontWeight: 700,
     },
     cmd: [
