@@ -32,3 +32,5 @@ coverage
 .codex
 .agents
 .claude
+.env
+plans
