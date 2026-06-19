@@ -1,10 +1,10 @@
-import { MIME_MAP } from '@/configs/mime'
 import { getImageDataURL } from '@/utils/image'
+import message from '@/utils/message'
 import useCreateElement from './useCreateElement'
 import useImport from './useImport'
 
 export default () => {
-  const { createImageElement, createVideoElement, createAudioElement } = useCreateElement()
+  const { createImageElement } = useCreateElement()
   const { importSpecificFile, importPPTXFile } = useImport()
 
   const pasteDataTransfer = (dataTransfer: DataTransfer) => {
@@ -24,22 +24,12 @@ export default () => {
           }
         }
         else if (item.type.indexOf('video') !== -1) {
-          const videoFile = item.getAsFile()
-          if (videoFile) {
-            const videoURL = URL.createObjectURL(videoFile)
-            const ext = MIME_MAP[videoFile.type] || ''
-            createVideoElement(videoURL, ext)
-            isFile = true
-          }
+          message.error('Video paste not supported — use Insert > Audio/Video to embed by URL')
+          isFile = true
         }
         else if (item.type.indexOf('audio') !== -1) {
-          const audioFile = item.getAsFile()
-          if (audioFile) {
-            const audioURL = URL.createObjectURL(audioFile)
-            const ext = MIME_MAP[audioFile.type] || ''
-            createAudioElement(audioURL, ext)
-            isFile = true
-          }
+          message.error('Audio paste not supported — use Insert > Audio/Video to embed by URL')
+          isFile = true
         }
       }
     }

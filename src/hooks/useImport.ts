@@ -619,6 +619,7 @@ export default () => {
         slidesStore.setTheme({ themeColors: json.themeColors })
 
         const slides: Slide[] = []
+        let skippedMediaCount = 0
         for (const item of json.slides) {
           const { type, value } = item.fill
           let background: SlideBackground
@@ -833,33 +834,10 @@ export default () => {
                 })
               }
               else if (el.type === 'audio' && el.blob) {
-                slide.elements.push({
-                  type: 'audio',
-                  id: nanoid(10),
-                  src: el.blob,
-                  width: el.width,
-                  height: el.height,
-                  left: el.left,
-                  top: el.top,
-                  rotate: 0,
-                  fixedRatio: false,
-                  color: theme.value.themeColors[0],
-                  loop: false,
-                  autoplay: false,
-                })
+                skippedMediaCount++
               }
               else if (el.type === 'video' && el.blob) {
-                slide.elements.push({
-                  type: 'video',
-                  id: nanoid(10),
-                  src: el.blob,
-                  width: el.width,
-                  height: el.height,
-                  left: el.left,
-                  top: el.top,
-                  rotate: 0,
-                  autoplay: false,
-                })
+                skippedMediaCount++
               }
               else if (el.type === 'shape') {
                 if (el.shapType === 'line' || /straightConnector/.test(el.shapType) || /bentConnector/.test(el.shapType) || /curvedConnector/.test(el.shapType)) {
@@ -1252,6 +1230,10 @@ export default () => {
           }
           parseElements([...item.elements, ...item.layoutElements])
           slides.push(slide)
+        }
+
+        if (skippedMediaCount > 0) {
+          message.warning(`${skippedMediaCount} video/audio elements were skipped — embed via URL instead`)
         }
 
         if (cover) {

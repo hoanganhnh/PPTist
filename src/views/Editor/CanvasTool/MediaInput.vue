@@ -9,9 +9,6 @@
     <template v-if="type === 'video'">
       <Input v-model:value="videoSrc" placeholder="Please enter video URL, e.g. https://xxx.mp4"></Input>
       <div class="btns">
-        <FileInput accept="video/*" @change="files => uploadVideo(files)">
-          <Button><i-icon-park-outline:upload /> Upload Local Video</Button>
-        </FileInput>
         <div class="group">
           <Button @click="emit('close')" style="margin-right: 10px;">Cancel</Button>
           <Button type="primary" @click="insertVideo()">Confirm</Button>
@@ -22,9 +19,6 @@
     <template v-if="type === 'audio'">
       <Input v-model:value="audioSrc" placeholder="Please enter audio URL, e.g. https://xxx.mp3"></Input>
       <div class="btns">
-        <FileInput accept="audio/*" @change="files => uploadAudio(files)">
-          <Button><i-icon-park-outline:upload /> Upload Local Audio</Button>
-        </FileInput>
         <div class="group">
           <Button @click="emit('close')" style="margin-right: 10px;">Cancel</Button>
           <Button type="primary" @click="insertAudio()">Confirm</Button>
@@ -37,11 +31,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import message from '@/utils/message'
-import { MIME_MAP } from '@/configs/mime'
 import Tabs from '@/components/Tabs.vue'
 import Input from '@/components/Input.vue'
 import Button from '@/components/Button.vue'
-import FileInput from '@/components/FileInput.vue'
 
 type TypeKey = 'video' | 'audio'
 interface TabItem {
@@ -65,28 +57,18 @@ const tabs: TabItem[] = [
   { key: 'audio', label: 'Audio' },
 ]
 
+const isValidMediaUrl = (url: string) => /^https?:\/\//i.test(url)
+
 const insertVideo = () => {
-  if (!videoSrc.value) return message.error('Please enter a valid video URL')
-  emit('insertVideo', { src: videoSrc.value })
+  const src = videoSrc.value.trim()
+  if (!isValidMediaUrl(src)) return message.error('Please enter a valid video URL')
+  emit('insertVideo', { src })
 }
 
 const insertAudio = () => {
-  if (!audioSrc.value) return message.error('Please enter a valid audio URL')
-  emit('insertAudio', { src: audioSrc.value })
-}
-
-const uploadVideo = (files: FileList) => {
-  const file = files[0]
-  if (!file) return
-  const ext = MIME_MAP[file.type] || ''
-  emit('insertVideo', { src: URL.createObjectURL(file), ext })
-}
-
-const uploadAudio = (files: FileList) => {
-  const file = files[0]
-  if (!file) return
-  const ext = MIME_MAP[file.type] || ''
-  emit('insertAudio', { src: URL.createObjectURL(file), ext })
+  const src = audioSrc.value.trim()
+  if (!isValidMediaUrl(src)) return message.error('Please enter a valid audio URL')
+  emit('insertAudio', { src })
 }
 </script>
 
@@ -97,6 +79,6 @@ const uploadAudio = (files: FileList) => {
 .btns {
   margin-top: 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 </style>
