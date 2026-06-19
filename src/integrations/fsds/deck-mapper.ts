@@ -77,3 +77,13 @@ export function mapStoreToSavePayload(
     version,
   }
 }
+
+/**
+ * Convert a payload containing Vue/Pinia reactive proxies into plain JSON.
+ * The backend contract is JSON, so this also matches the API wire format.
+ */
+export function createSerializableDeckSnapshot(
+  payload: ReturnType<typeof mapStoreToSavePayload>,
+): ReturnType<typeof mapStoreToSavePayload> {
+  return JSON.parse(JSON.stringify(payload)) as ReturnType<typeof mapStoreToSavePayload>
+}

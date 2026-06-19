@@ -57,6 +57,18 @@ let saveHandler: (() => Promise<void>) | null = null
 /** Single-flight guard — prevents concurrent save operations. */
 let isSaving = false
 
+export async function executeSaveHandler(
+  handler: () => Promise<void>,
+  onUnexpectedError: () => void,
+): Promise<void> {
+  try {
+    await handler()
+  }
+  catch {
+    onUnexpectedError()
+  }
+}
+
 /**
  * Send a typed message to the parent window.
  * Silently drops the message if no parent origin has been established.
@@ -122,7 +134,17 @@ function handleParentMessage(event: MessageEvent): void {
       // Parent requested a save — invoke registered handler with single-flight guard
       if (!saveHandler || isSaving) break
       isSaving = true
-      saveHandler()
+      executeSaveHandler(
+        saveHandler,
+        () => {
+          const deckId = getDeckIdFromUrl() ?? ''
+          sendSaveFailed(
+            deckId,
+            'SAVE_HANDLER_ERROR',
+            'The slide deck could not be saved. Please try again.',
+          )
+        },
+      )
         .finally(() => {
           isSaving = false
         })

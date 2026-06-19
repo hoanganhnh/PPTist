@@ -29,6 +29,7 @@ import {
   hasValidSlides,
   mapResponseToStore,
   mapStoreToSavePayload,
+  createSerializableDeckSnapshot,
   initSession,
   updateDeckVersion,
   sendSaved,
@@ -119,7 +120,7 @@ async function bootFsds(): Promise<void> {
     if (shouldImportResourcePptx(deckResponse)) {
       await importResourcePptx(deckResponse.ownerId)
       // RT-S2: Normalize imported PPTX assets before initial save
-      const importSnapshot = structuredClone(mapStoreToSavePayload(
+      const importSnapshot = createSerializableDeckSnapshot(mapStoreToSavePayload(
         slidesStore.title,
         slidesStore.theme,
         slidesStore.slides,
@@ -290,17 +291,17 @@ async function handleFsdsSave(): Promise<void> {
   const { getSession } = await import('@/integrations/fsds/editor-session')
   const session = getSession()
 
-  // RT-S2: structuredClone snapshot before normalization — live store is NOT mutated
-  const snapshot = structuredClone(mapStoreToSavePayload(
-    slidesStore.title,
-    slidesStore.theme,
-    slidesStore.slides,
-    slidesStore.viewportSize,
-    slidesStore.viewportRatio,
-    session.deckVersion,
-  ))
-
   try {
+    // RT-S2: plain JSON snapshot before normalization — live store is NOT mutated
+    const snapshot = createSerializableDeckSnapshot(mapStoreToSavePayload(
+      slidesStore.title,
+      slidesStore.theme,
+      slidesStore.slides,
+      slidesStore.viewportSize,
+      slidesStore.viewportRatio,
+      session.deckVersion,
+    ))
+
     // Normalize: upload base64 images and replace with URLs in snapshot
     const { payload, assetPatches } = await normalizeDeckAssets(
       deckId,

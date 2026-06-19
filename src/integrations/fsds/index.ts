@@ -28,6 +28,7 @@ export {
   hasValidSlides,
   mapResponseToStore,
   mapStoreToSavePayload,
+  createSerializableDeckSnapshot,
 } from './deck-mapper'
 
 export {
