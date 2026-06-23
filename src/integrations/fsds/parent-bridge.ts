@@ -6,6 +6,8 @@
  * All events follow the contract in architecture-contract.md §4.
  */
 
+declare const process: any
+
 // ── Event Types ──
 
 export const EVENTS = {
@@ -86,7 +88,7 @@ function postToParent(type: string, payload: Record<string, unknown> = {}): void
 export function isAllowedOrigin(origin: string): boolean {
   if (origin === window.location.origin) return true
 
-  const allowed = (import.meta.env?.VITE_ALLOWED_PARENT_ORIGINS) || (process.env.VITE_ALLOWED_PARENT_ORIGINS) || ''
+  const allowed = (import.meta.env?.VITE_ALLOWED_PARENT_ORIGINS) || ''
   const origins = allowed
     .split(',')
     .map((o: string) => o.trim())
