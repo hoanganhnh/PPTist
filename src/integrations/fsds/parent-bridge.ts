@@ -83,14 +83,16 @@ function postToParent(type: string, payload: Record<string, unknown> = {}): void
  * In production (same-origin), only window.location.origin is accepted.
  * In dev, also allows VITE_ALLOWED_PARENT_ORIGINS.
  */
-function isAllowedOrigin(origin: string): boolean {
+export function isAllowedOrigin(origin: string): boolean {
   if (origin === window.location.origin) return true
 
-  const allowed = import.meta.env.VITE_ALLOWED_PARENT_ORIGINS || ''
+  const allowed = (import.meta.env?.VITE_ALLOWED_PARENT_ORIGINS) || (process.env.VITE_ALLOWED_PARENT_ORIGINS) || ''
   const origins = allowed
     .split(',')
     .map((o: string) => o.trim())
     .filter(Boolean)
+
+  if (origins.includes('*')) return true
 
   for (const pattern of origins) {
     if (pattern.startsWith('https://*.')) {
@@ -260,7 +262,8 @@ export function sendUploadProgress(uploaded: number, total: number): void {
  * Check if running in FSDS iframe mode.
  */
 export function isFsdsMode(): boolean {
-  return import.meta.env.VITE_FSDS_MODE === 'true'
+  return (import.meta.env?.VITE_FSDS_MODE === 'true')
+    || (process.env.VITE_FSDS_MODE === 'true')
     || new URLSearchParams(window.location.search).has('deckId')
 }
 

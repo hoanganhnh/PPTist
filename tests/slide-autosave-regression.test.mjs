@@ -1,3 +1,4 @@
+/* eslint-env node, es2022 */
 import assert from 'node:assert/strict'
 import { Buffer } from 'node:buffer'
 import { readFile } from 'node:fs/promises'
@@ -83,3 +84,37 @@ test('FSDS child bridge does not emit fallback failure for handled save outcomes
 
   assert.equal(failureCount, 0)
 })
+
+test('FSDS child bridge isAllowedOrigin supports wildcard * to allow all parent origins', async () => {
+  const { isAllowedOrigin } = await importTypeScriptModule(
+    'src/integrations/fsds/parent-bridge.ts',
+  )
+
+  // Mock global window objects needed for the function
+  globalThis.window = {
+    location: {
+      origin: 'http://localhost:8080'
+    }
+  }
+
+  // 1. With wildcard '*'
+  process.env.VITE_ALLOWED_PARENT_ORIGINS = '*'
+  assert.equal(isAllowedOrigin('https://anyparent.com'), true)
+  assert.equal(isAllowedOrigin('http://localhost:3000'), true)
+
+  // 2. With wildcard '*' among other origins
+  process.env.VITE_ALLOWED_PARENT_ORIGINS = 'http://localhost:3000, * , https://secure.com'
+  assert.equal(isAllowedOrigin('https://anyparent.com'), true)
+  assert.equal(isAllowedOrigin('http://localhost:3000'), true)
+
+  // 3. Without wildcard, matching exact
+  process.env.VITE_ALLOWED_PARENT_ORIGINS = 'http://localhost:3000, https://secure.com'
+  assert.equal(isAllowedOrigin('http://localhost:3000'), true)
+  assert.equal(isAllowedOrigin('https://secure.com'), true)
+  assert.equal(isAllowedOrigin('https://anyparent.com'), false)
+
+  // Clean up
+  delete process.env.VITE_ALLOWED_PARENT_ORIGINS
+  delete globalThis.window
+})
+

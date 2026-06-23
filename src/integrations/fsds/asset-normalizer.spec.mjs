@@ -1,3 +1,4 @@
+/* eslint-env node, es2022 */
 /**
  * Unit tests for FSDS asset normalizer.
  * Uses Node.js built-in test runner (matching existing repo precedent).
@@ -5,18 +6,13 @@
  * Run: node --test src/integrations/fsds/asset-normalizer.spec.mjs
  */
 
-import { describe, it, mock, beforeEach } from 'node:test'
+import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 
 // We test the module functions by importing the compiled output.
 // Since the project uses Vite, we mock dependencies at the module level.
 
 // ── Mock setup ──
-
-// Mock uploadDeckAsset and sendUploadProgress
-let uploadDeckAssetMock = mock.fn()
-let sendUploadProgressMock = mock.fn()
-let uploadCallCount = 0
 
 // Since we can't easily mock ES module imports in Node.js built-in test runner,
 // we test the pure functions by extracting testable logic.
@@ -53,7 +49,9 @@ describe('parseImageDataUrl', () => {
       }
       return { mimeType, extension, bytes }
     }
-    catch { return null }
+    catch {
+      return null 
+    }
   }
 
   it('parses valid PNG data URL', () => {
@@ -147,7 +145,9 @@ describe('scanForDataUrls', () => {
       for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i)
       return { mimeType, extension, bytes }
     }
-    catch { return null }
+    catch {
+      return null 
+    }
   }
 
   function isSvgDataUrl(value) {
@@ -156,7 +156,9 @@ describe('scanForDataUrls', () => {
 
   function scanForDataUrls(data, path = [], found = [], svgPaths = []) {
     if (typeof data === 'string') {
-      if (isSvgDataUrl(data)) { svgPaths.push([...path]); return { found, svgPaths } }
+      if (isSvgDataUrl(data)) {
+        svgPaths.push([...path]); return { found, svgPaths } 
+      }
       const parsed = parseImageDataUrl(data)
       if (parsed) found.push({ path: [...path], value: data, parsed })
       return { found, svgPaths }
@@ -166,8 +168,9 @@ describe('scanForDataUrls', () => {
       return { found, svgPaths }
     }
     if (data && typeof data === 'object') {
-      for (const [key, value] of Object.entries(data))
+      for (const [key, value] of Object.entries(data)) {
         scanForDataUrls(value, [...path, key], found, svgPaths)
+      }
     }
     return { found, svgPaths }
   }
@@ -286,10 +289,18 @@ describe('scanForDataUrls', () => {
 describe('AssetChecksumCache', () => {
   // Inline a simple cache for testing
   class AssetChecksumCache {
-    constructor() { this.cache = new Map() }
-    get(checksum) { return this.cache.get(checksum) }
-    set(checksum, response) { this.cache.set(checksum, response) }
-    get size() { return this.cache.size }
+    constructor() {
+      this.cache = new Map() 
+    }
+    get(checksum) {
+      return this.cache.get(checksum) 
+    }
+    set(checksum, response) {
+      this.cache.set(checksum, response) 
+    }
+    get size() {
+      return this.cache.size 
+    }
   }
 
   it('stores and retrieves asset responses', () => {

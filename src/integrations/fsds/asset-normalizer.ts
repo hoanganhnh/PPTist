@@ -205,7 +205,7 @@ function setAtPath(obj: unknown, path: (string | number)[], value: unknown): voi
   for (let i = 0; i < path.length - 1; i++) {
     current = (current as Record<string | number, unknown>)[path[i]]
   }
-  ;(current as Record<string | number, unknown>)[path[path.length - 1]] = value
+  (current as Record<string | number, unknown>)[path[path.length - 1]] = value
 }
 
 // ── Retry helper ──
