@@ -16,6 +16,7 @@ export interface EditorSessionState {
   apiBaseUrl: string
   editorToken: string
   editorTokenExpiresAt: string
+  /** @deprecated parentOrigin is now managed by the bridge, not the session */
   parentOrigin: string
   /** Current deck version for optimistic concurrency */
   deckVersion: number
@@ -34,7 +35,7 @@ export function initSession(bootstrap: BootstrapPayload): EditorSessionState {
     apiBaseUrl: bootstrap.apiBaseUrl,
     editorToken: bootstrap.editorToken,
     editorTokenExpiresAt: bootstrap.editorTokenExpiresAt,
-    parentOrigin: bootstrap.parentOrigin,
+    parentOrigin: bootstrap.parentOrigin ?? '',
     deckVersion: 0, // Will be set after deck load
   }
 

@@ -34,6 +34,10 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     port: 5173,
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
     proxy: {
       '/api': {
         target: 'https://server.pptist.cn',
@@ -46,6 +50,12 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  preview: {
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
   },
   css: {
     preprocessorOptions: {

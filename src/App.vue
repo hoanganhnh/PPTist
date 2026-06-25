@@ -1,6 +1,7 @@
 <template>
   <template v-if="slides.length">
-    <Screen v-if="screening" />
+    <StudentViewer v-if="isViewerMode" />
+    <Screen v-else-if="screening" />
     <Editor v-else-if="_isPC" />
     <Mobile v-else />
   </template>
@@ -24,6 +25,7 @@ import {
   waitForBootstrap,
   initFsdsApi,
   loadDeck,
+  loadDeckForView,
   loadResource,
   saveDeck,
   hasValidSlides,
@@ -49,6 +51,7 @@ import useImport from '@/hooks/useImport'
 import Editor from './views/Editor/index.vue'
 import Screen from './views/Screen/index.vue'
 import Mobile from './views/Mobile/index.vue'
+import StudentViewer from './views/Viewer/StudentViewer.vue'
 import FullscreenSpin from '@/components/FullscreenSpin.vue'
 
 const _isPC = isPC()
@@ -63,6 +66,7 @@ const { screening } = storeToRefs(screenStore)
 const { importPPTXFile } = useImport()
 
 const isAudienceMode = new URLSearchParams(window.location.search).get('mode') === 'audience'
+const isViewerMode = new URLSearchParams(window.location.search).get('mode') === 'viewer'
 const _isFsdsMode = isFsdsMode()
 
 // In FSDS mode, parent owns the navigation warning via dirty events.
@@ -197,8 +201,59 @@ async function bootStandalone(): Promise<void> {
   }
 }
 
+/**
+ * FSDS viewer boot flow — read-only, no save/dirty/import/normalization.
+ * 1. Read deckId from URL
+ * 2. Init postMessage bridge
+ * 3. Wait for BOOTSTRAP from parent (mode='viewer')
+ * 4. Init API client with view token
+ * 5. Load deck via scoped view endpoint
+ * 6. Hydrate PPTist stores (read-only)
+ */
+async function bootViewer(): Promise<void> {
+  const deckId = getDeckIdFromUrl()
+  if (!deckId) {
+    sendError('NO_DECK_ID', 'No deckId parameter found in URL')
+    return
+  }
+
+  initBridge()
+
+  try {
+    const bootstrap = await waitForBootstrap(deckId)
+
+    // Validate bootstrap mode matches URL mode
+    if (bootstrap.mode && bootstrap.mode !== 'viewer') {
+      sendError('MODE_MISMATCH', 'Bootstrap mode does not match viewer URL mode')
+      return
+    }
+
+    initFsdsApi(bootstrap.apiBaseUrl, bootstrap.editorToken)
+
+    // Load deck via view-scoped endpoint
+    const deckResponse = await loadDeckForView(deckId)
+    const deckState = mapResponseToStore(deckResponse)
+
+    // Hydrate stores (read-only — no snapshots, no dirty tracking)
+    slidesStore.setTitle(deckState.title)
+    if (Object.keys(deckState.theme).length > 0) {
+      slidesStore.setTheme(deckState.theme)
+    }
+    slidesStore.setSlides(deckState.slides)
+    if (deckState.viewportSize) slidesStore.setViewportSize(deckState.viewportSize)
+    if (deckState.viewportRatio) slidesStore.setViewportRatio(deckState.viewportRatio)
+  }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    sendError('VIEWER_BOOT_FAILED', `Failed to initialize viewer: ${message}`)
+  }
+}
+
 onMounted(async () => {
-  if (_isFsdsMode) {
+  if (isViewerMode && _isFsdsMode) {
+    await bootViewer()
+  }
+  else if (_isFsdsMode) {
     await bootFsds()
   }
   else {
@@ -207,9 +262,12 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  if (_isFsdsMode) {
+  if (_isFsdsMode && !isViewerMode) {
     stopDirtyTracking()
     destroySession()
+    destroyBridge()
+  }
+  else if (isViewerMode) {
     destroyBridge()
   }
 })

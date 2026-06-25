@@ -34,7 +34,10 @@ export interface BootstrapPayload {
   editorToken: string
   editorTokenExpiresAt: string
   credentialMode: 'bearer-token'
-  parentOrigin: string
+  /** @deprecated Ignored — parentOrigin is now always derived from event.origin */
+  parentOrigin?: string
+  /** Session mode — 'editor' (default for backward compat) or 'viewer' */
+  mode?: 'editor' | 'viewer'
 }
 
 export interface SavedPayload {
@@ -125,10 +128,9 @@ function handleParentMessage(event: MessageEvent): void {
   switch (data.type) {
     case EVENTS.BOOTSTRAP: {
       if (!bootstrapResolver) break
+      // Always use validated event.origin — never trust payload.parentOrigin
       parentOrigin = event.origin
       const payload = data.payload as BootstrapPayload
-      // Override parentOrigin from bootstrap if provided
-      if (payload.parentOrigin) parentOrigin = payload.parentOrigin
       bootstrapResolver(payload)
       bootstrapResolver = null
       break

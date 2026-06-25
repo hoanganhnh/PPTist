@@ -20,6 +20,7 @@ export {
 export {
   initFsdsApi,
   loadDeck,
+  loadDeckForView,
   loadResource,
   saveDeck,
 } from './fsds-api'

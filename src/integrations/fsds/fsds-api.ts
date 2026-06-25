@@ -76,11 +76,21 @@ export function updateEditorToken(newToken: string): void {
 }
 
 /**
- * Load a slide deck from the FSDS backend.
+ * Load a slide deck from the FSDS backend (editor mode).
  */
 export async function loadDeck(deckId: string): Promise<FsdsDeckResponse> {
   if (!client) throw new Error('FSDS API client not initialized')
   const { data } = await client.get<FsdsDeckResponse>(`/slides/${deckId}`)
+  return data
+}
+
+/**
+ * Load a slide deck from the FSDS backend (viewer mode).
+ * Uses the scoped view endpoint — only available with view tokens.
+ */
+export async function loadDeckForView(deckId: string): Promise<FsdsDeckResponse> {
+  if (!client) throw new Error('FSDS API client not initialized')
+  const { data } = await client.get<FsdsDeckResponse>(`/slides/${deckId}/view`)
   return data
 }
 
